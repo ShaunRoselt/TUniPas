@@ -1,0 +1,5 @@
+object Frame_Template: TFrame_Template
+  Size.Width = 320.00000000000000000
+  Size.Height = 240.00000000000000000
+  Size.PlatformDefault = False
+end

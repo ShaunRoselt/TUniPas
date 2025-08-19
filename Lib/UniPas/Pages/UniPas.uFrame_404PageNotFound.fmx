@@ -1,0 +1,21 @@
+inherited Frame_404PageNotFound: TFrame_404PageNotFound
+  object layFrameContainer: TPanel
+    Align = Client
+    Size.Width = 320.00000000000000000
+    Size.Height = 240.00000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object Label1: TLabel
+      Align = Client
+      StyledSettings = [Family, FontColor]
+      Size.Width = 320.00000000000000000
+      Size.Height = 240.00000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.Size = 22.00000000000000000
+      TextSettings.Font.StyleExt = {00060000000000000004000000}
+      TextSettings.HorzAlign = Center
+      Text = 'Page Not Found'
+      TabOrder = 1
+    end
+  end
+end

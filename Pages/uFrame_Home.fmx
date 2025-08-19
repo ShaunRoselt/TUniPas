@@ -1,0 +1,41 @@
+inherited Frame_Home: TFrame_Home
+  Size.Width = 536.00000000000000000
+  Size.Height = 372.00000000000000000
+  object Button1: TButton
+    Position.X = 88.00000000000000000
+    Position.Y = 136.00000000000000000
+    Size.Width = 225.00000000000000000
+    Size.Height = 81.00000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    Text = 'Go to About Page'
+    TextSettings.Trimming = None
+    OnClick = Button1Click
+  end
+  object Label1: TLabel
+    Align = Top
+    StyledSettings = [Family, FontColor]
+    Margins.Left = 40.00000000000000000
+    Margins.Top = 20.00000000000000000
+    Position.X = 40.00000000000000000
+    Position.Y = 20.00000000000000000
+    Size.Width = 496.00000000000000000
+    Size.Height = 33.00000000000000000
+    Size.PlatformDefault = False
+    TextSettings.Font.Size = 24.00000000000000000
+    TextSettings.Font.StyleExt = {00070000000000000004000000}
+    Text = 'HOME'
+    TabOrder = 2
+  end
+  object Button2: TButton
+    Position.X = 88.00000000000000000
+    Position.Y = 248.00000000000000000
+    Size.Width = 225.00000000000000000
+    Size.Height = 81.00000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    Text = 'Go to Instructions Page'
+    TextSettings.Trimming = None
+    OnClick = Button1Click
+  end
+end

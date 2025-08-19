@@ -1,0 +1,81 @@
+object FrmMain: TFrmMain
+  Left = 0
+  Top = 0
+  Caption = 'UniPas Starter Project'
+  ClientHeight = 568
+  ClientWidth = 1092
+  WindowState = wsMaximized
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  DesignerMasterStyle = 0
+  object UniPasContainer: TLayout
+    Align = Client
+    Size.Width = 892.00000000000000000
+    Size.Height = 568.00000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+  end
+  object Layout1: TLayout
+    Align = Left
+    Size.Width = 200.00000000000000000
+    Size.Height = 568.00000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    object Button2: TButton
+      Align = Top
+      Position.Y = 50.00000000000000000
+      Size.Width = 200.00000000000000000
+      Size.Height = 50.00000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 4
+      Text = 'Hierdie bestaan nie'
+      TextSettings.Trimming = None
+      OnClick = Button2Click
+    end
+    object Button3: TButton
+      Align = Top
+      Position.Y = 100.00000000000000000
+      Size.Width = 200.00000000000000000
+      Size.Height = 50.00000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 2
+      Text = 'About'
+      TextSettings.Trimming = None
+      OnClick = Button3Click
+    end
+    object Button4: TButton
+      Align = Top
+      Position.Y = 150.00000000000000000
+      Size.Width = 200.00000000000000000
+      Size.Height = 50.00000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      Text = 'Login'
+      TextSettings.Trimming = None
+      OnClick = Button4Click
+    end
+    object Button1: TButton
+      Align = Top
+      Size.Width = 200.00000000000000000
+      Size.Height = 50.00000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      Text = 'Home'
+      TextSettings.Trimming = None
+      OnClick = Button1Click
+    end
+    object Button5: TButton
+      Align = Top
+      Position.Y = 200.00000000000000000
+      Size.Width = 200.00000000000000000
+      Size.Height = 50.00000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 3
+      Text = 'Exit'
+      TextSettings.Trimming = None
+      OnClick = Button5Click
+    end
+  end
+end

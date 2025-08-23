@@ -4,10 +4,10 @@ interface
 
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, 
-  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls, UniPas.uFrame_Template, FMX.Controls.Presentation;
+  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls, FMX.Controls.Presentation;
 
 type
-  TFrame_About = class(TFrame_Template)
+  TFrame_About = class(TFrame)
     Label1: TLabel;
     Button1: TButton;
     procedure Button1Click(Sender: TObject);
@@ -24,12 +24,12 @@ implementation
 
 {$R *.fmx}
 
+uses
+  UniPas.Routing;
+
 procedure TFrame_About.Button1Click(Sender: TObject);
 begin
-  OpenPage('Home');
+  TUniPas.RenderPage(nil, 'Home');
 end;
-
-initialization
-  RegisterClasses([TFrame_About]);
 
 end.

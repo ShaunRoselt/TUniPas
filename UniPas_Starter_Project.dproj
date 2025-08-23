@@ -320,11 +320,6 @@
             <FormType>fmx</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Lib\UniPas\Pages\UniPas.uFrame_Template.pas">
-            <Form>Frame_Template</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Lib\UniPas\Pages\UniPas.uFrame_404PageNotFound.pas">
             <Form>Frame_404PageNotFound</Form>
             <FormType>fmx</FormType>
@@ -1336,6 +1331,7 @@
                 <Platform value="Android64">True</Platform>
                 <Platform value="iOSDevice64">True</Platform>
                 <Platform value="iOSSimARM64">True</Platform>
+                <Platform value="Linux64">False</Platform>
                 <Platform value="OSX64">True</Platform>
                 <Platform value="OSXARM64">True</Platform>
                 <Platform value="Win32">True</Platform>

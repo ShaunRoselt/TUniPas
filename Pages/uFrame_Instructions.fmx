@@ -1,11 +1,12 @@
-inherited Frame_Instructions: TFrame_Instructions
-  Size.Width = 520.00000000000000000
-  Size.Height = 376.00000000000000000
+object Frame_Instructions: TFrame_Instructions
+  Size.Width = 520.000000000000000000
+  Size.Height = 376.000000000000000000
+  Size.PlatformDefault = False
   object Button1: TButton
-    Position.X = 88.00000000000000000
-    Position.Y = 136.00000000000000000
-    Size.Width = 225.00000000000000000
-    Size.Height = 81.00000000000000000
+    Position.X = 88.000000000000000000
+    Position.Y = 136.000000000000000000
+    Size.Width = 225.000000000000000000
+    Size.Height = 81.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 0
     Text = 'Go to Home Page'
@@ -14,14 +15,14 @@ inherited Frame_Instructions: TFrame_Instructions
   object Label1: TLabel
     Align = Top
     StyledSettings = [Family, FontColor]
-    Margins.Left = 40.00000000000000000
-    Margins.Top = 20.00000000000000000
-    Position.X = 40.00000000000000000
-    Position.Y = 20.00000000000000000
-    Size.Width = 480.00000000000000000
-    Size.Height = 33.00000000000000000
+    Margins.Left = 40.000000000000000000
+    Margins.Top = 20.000000000000000000
+    Position.X = 40.000000000000000000
+    Position.Y = 20.000000000000000000
+    Size.Width = 480.000000000000000000
+    Size.Height = 33.000000000000000000
     Size.PlatformDefault = False
-    TextSettings.Font.Size = 24.00000000000000000
+    TextSettings.Font.Size = 24.000000000000000000
     TextSettings.Font.StyleExt = {00070000000000000004000000}
     Text = 'INSTRUCTIONS'
     TabOrder = 1

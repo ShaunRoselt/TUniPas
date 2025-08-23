@@ -10,7 +10,6 @@ uses
   uFrame_About in 'Pages\uFrame_About.pas' {Frame_About: TFrame},
   UniPas.Routing.Pages in 'Lib\UniPas\UniPas.Routing.Pages.pas',
   uFrame_Instructions in 'Pages\uFrame_Instructions.pas' {Frame_Instructions: TFrame},
-  UniPas.uFrame_Template in 'Lib\UniPas\Pages\UniPas.uFrame_Template.pas' {Frame_Template: TFrame},
   UniPas.uFrame_404PageNotFound in 'Lib\UniPas\Pages\UniPas.uFrame_404PageNotFound.pas' {Frame_404PageNotFound: TFrame},
   UniPas.Routing.Variables in 'Lib\UniPas\UniPas.Routing.Variables.pas';
 

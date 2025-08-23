@@ -12,70 +12,81 @@ object FrmMain: TFrmMain
   DesignerMasterStyle = 0
   object UniPasContainer: TLayout
     Align = Client
-    Size.Width = 892.00000000000000000
-    Size.Height = 568.00000000000000000
+    Size.Width = 892.000000000000000000
+    Size.Height = 568.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 0
   end
   object Layout1: TLayout
     Align = Left
-    Size.Width = 200.00000000000000000
-    Size.Height = 568.00000000000000000
+    Size.Width = 200.000000000000000000
+    Size.Height = 568.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 1
     object Button2: TButton
       Align = Top
-      Position.Y = 50.00000000000000000
-      Size.Width = 200.00000000000000000
-      Size.Height = 50.00000000000000000
+      Position.Y = 50.000000000000000000
+      Size.Width = 200.000000000000000000
+      Size.Height = 50.000000000000000000
       Size.PlatformDefault = False
-      TabOrder = 4
+      TabOrder = 5
       Text = 'Hierdie bestaan nie'
       TextSettings.Trimming = None
       OnClick = Button2Click
     end
     object Button3: TButton
       Align = Top
-      Position.Y = 100.00000000000000000
-      Size.Width = 200.00000000000000000
-      Size.Height = 50.00000000000000000
+      Position.Y = 100.000000000000000000
+      Size.Width = 200.000000000000000000
+      Size.Height = 50.000000000000000000
       Size.PlatformDefault = False
-      TabOrder = 2
+      TabOrder = 3
       Text = 'About'
       TextSettings.Trimming = None
       OnClick = Button3Click
     end
     object Button4: TButton
       Align = Top
-      Position.Y = 150.00000000000000000
-      Size.Width = 200.00000000000000000
-      Size.Height = 50.00000000000000000
+      Position.Y = 150.000000000000000000
+      Size.Width = 200.000000000000000000
+      Size.Height = 50.000000000000000000
       Size.PlatformDefault = False
-      TabOrder = 0
+      TabOrder = 1
       Text = 'Login'
       TextSettings.Trimming = None
       OnClick = Button4Click
     end
     object Button1: TButton
       Align = Top
-      Size.Width = 200.00000000000000000
-      Size.Height = 50.00000000000000000
+      Size.Width = 200.000000000000000000
+      Size.Height = 50.000000000000000000
       Size.PlatformDefault = False
-      TabOrder = 1
+      TabOrder = 2
       Text = 'Home'
       TextSettings.Trimming = None
       OnClick = Button1Click
     end
     object Button5: TButton
       Align = Top
-      Position.Y = 200.00000000000000000
-      Size.Width = 200.00000000000000000
-      Size.Height = 50.00000000000000000
+      Position.Y = 250.000000000000000000
+      Size.Width = 200.000000000000000000
+      Size.Height = 50.000000000000000000
       Size.PlatformDefault = False
-      TabOrder = 3
+      TabOrder = 4
       Text = 'Exit'
       TextSettings.Trimming = None
       OnClick = Button5Click
+    end
+    object Button6: TButton
+      Align = Top
+      Position.Y = 200.000000000000000000
+      Size.Width = 200.000000000000000000
+      Size.Height = 50.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      Text = 'Instructions'
+      TextSettings.Trimming = None
+      OnClick = Button6Click
     end
   end
 end

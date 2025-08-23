@@ -26,10 +26,6 @@ uses
     Lib.Routing.Utilities,
   {$ENDIF}
 
-  UniPas.uFrame_Template,
-  UniPas.uFrame_404PageNotFound,
-
-  uFrame_Home,
   UniPas.Routing.Pages,
   UniPas.Routing.Variables;
 
@@ -43,13 +39,12 @@ type
     TLibContainerControl = type TControl;
   {$ENDIF}
 
-  // Convenience record wrapper so callers can write TUniPas.RenderPage(...)
   TUniPas = record
   private
     class function GetOpenPageName: String; static;
     class function GetOpenPageNamePrevious: String; static;
     class function GetOpenPageInfo: String; static;
-  class procedure FreeAndNilActiveFrame; static;
+    class procedure FreeAndNilActiveFrame; static;
     class function FormatPageName(const sPageName: String): String; static;
   public
     class procedure RenderPage(ContainerControl: TLibContainerControl; sPageName: String; sPageInfo: String = ''; sPageTitle: String = ''; sPageQueryString: String = ''; ReplaceState: Boolean = False); static;
@@ -100,7 +95,6 @@ class procedure TUniPas.RenderPage(ContainerControl: TLibContainerControl; sPage
         FramePage.Align := TAlignLayout.Client;
       {$ENDIF}
     end;
-  { FormatPageName moved to TUniPas.FormatPageName }
     var
       I: UInt64;
       Visibility, PageFound: Boolean;
@@ -116,11 +110,12 @@ class procedure TUniPas.RenderPage(ContainerControl: TLibContainerControl; sPage
     {$IFDEF PAS2JS}
       ContainerControl.ElementHandle.firstElementChild.innerHTML := '';
     {$ENDIF}
-    for PageArrayItem in PagesArray do
+  for PageArrayItem in PagesArray do
     begin
       if (PageArrayItem = sPageName) then
       begin
-        ActiveFrame := TLibFrame(TBaseFrame_Template(GetClass('TFrame_'+PageArrayItem)).Create(ContainerControl));
+        var CompClass := TComponentClass(GetClass('TFrame_'+PageArrayItem));
+        ActiveFrame := TLibFrame(CompClass.Create(Application));
         CreateAppFrame(ActiveFrame,'lay'+PageArrayItem);
       end;
     end;
@@ -157,13 +152,9 @@ begin
   UniPasPageName := sPageName;
   UniPasPageInfo := sPageInfo;
 
-  // If caller passed nil (or the platform supplies a different global),
-  // attempt to use the globally-registered container control.
+
   if (ContainerControl = nil) and Assigned(UniPas.Routing.Variables.UniPasContainerControl) then
     ContainerControl := TLibContainerControl(UniPas.Routing.Variables.UniPasContainerControl);
-
-  // If we still don't have a container control, raise an informative exception
-  // rather than allowing an access violation deeper in the frame creation/hiding.
   if not Assigned(ContainerControl) then
     raise Exception.Create('TUniPas.RenderPage: No container control supplied and UniPasContainerControl is not set.');
 

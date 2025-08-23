@@ -5,10 +5,10 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, 
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
-  UniPas.uFrame_Template, FMX.Controls.Presentation;
+  FMX.Controls.Presentation;
 
 type
-  TFrame_404PageNotFound = class(TFrame_Template)
+  TFrame_404PageNotFound = class(TFrame)
     layFrameContainer: TPanel;
     Label1: TLabel;
   private
@@ -24,7 +24,7 @@ implementation
 
 {$R *.fmx}
 
-initialization
-  RegisterClasses([TFrame_404PageNotFound]);
+uses
+  UniPas.Routing;
 
 end.

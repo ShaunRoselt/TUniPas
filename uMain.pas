@@ -20,12 +20,14 @@ type
     Button4: TButton;
     Button1: TButton;
     Button5: TButton;
+    Button6: TButton;
   procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -38,9 +40,6 @@ var
 implementation
 
 {$R *.fmx}
-
-// OpenPage removed: frames call RenderPage directly and the global
-// UniPasContainerControl is set in FormCreate.
 
 procedure TFrmMain.Button1Click(Sender: TObject);
 begin
@@ -59,12 +58,17 @@ end;
 
 procedure TFrmMain.Button4Click(Sender: TObject);
 begin
-  TUniPas.RenderPage(TLibContainerControl(UniPasContainer), 'Login', '')
+  TUniPas.RenderPage(TLibContainerControl(UniPasContainer), 'Login', '');
 end;
 
 procedure TFrmMain.Button5Click(Sender: TObject);
 begin
   Application.Terminate;
+end;
+
+procedure TFrmMain.Button6Click(Sender: TObject);
+begin
+  TUniPas.RenderPage(TLibContainerControl(UniPasContainer), 'Instructions', '');
 end;
 
 procedure TFrmMain.FormCreate(Sender: TObject);

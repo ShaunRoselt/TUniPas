@@ -29,7 +29,7 @@ uses
 
 procedure TFrame_About.Button1Click(Sender: TObject);
 begin
-  TUniPas.RenderPage(nil, 'Home');
+  TUniPas.RenderPage('Home');
 end;
 
 end.

@@ -21,7 +21,7 @@ type
     Button1: TButton;
     Button5: TButton;
     Button6: TButton;
-  procedure FormCreate(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -43,22 +43,22 @@ implementation
 
 procedure TFrmMain.Button1Click(Sender: TObject);
 begin
-  TUniPas.RenderPage(TLibContainerControl(UniPasContainer), 'Home', '');
+  TUniPas.RenderPage('Home');
 end;
 
 procedure TFrmMain.Button2Click(Sender: TObject);
 begin
-  TUniPas.RenderPage(TLibContainerControl(UniPasContainer), 'Hierdie bestaan nie', '');
+  TUniPas.RenderPage('Hierdie bestaan nie');
 end;
 
 procedure TFrmMain.Button3Click(Sender: TObject);
 begin
-  TUniPas.RenderPage(TLibContainerControl(UniPasContainer), 'About', '');
+  TUniPas.RenderPage('About');
 end;
 
 procedure TFrmMain.Button4Click(Sender: TObject);
 begin
-  TUniPas.RenderPage(TLibContainerControl(UniPasContainer), 'Login', '');
+  TUniPas.RenderPage('Login');
 end;
 
 procedure TFrmMain.Button5Click(Sender: TObject);
@@ -68,7 +68,7 @@ end;
 
 procedure TFrmMain.Button6Click(Sender: TObject);
 begin
-  TUniPas.RenderPage(TLibContainerControl(UniPasContainer), 'Instructions', '');
+  TUniPas.RenderPage('Instructions');
 end;
 
 procedure TFrmMain.FormCreate(Sender: TObject);
@@ -76,7 +76,7 @@ begin
   // Register the container control globally so frames can call RenderPage(nil, ...)
   UniPas.Routing.Variables.UniPasContainerControl := TObject(UniPasContainer);
   UniPasPageName := 'Home';
-  TUniPas.RenderPage(TLibContainerControl(UniPasContainer), UniPasPageName, '');
+  TUniPas.RenderPage(UniPasPageName);
 end;
 
 end.

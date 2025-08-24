@@ -29,12 +29,12 @@ uses
 
 procedure TFrame_Home.btnAboutPageClick(Sender: TObject);
 begin
-  TUniPas.RenderPage(nil, 'About');
+  TUniPas.RenderPage('About');
 end;
 
 procedure TFrame_Home.btnInstructionsPageClick(Sender: TObject);
 begin
-  TUniPas.RenderPage(nil, 'Instructions');
+  TUniPas.RenderPage('Instructions');
 end;
 
 end.

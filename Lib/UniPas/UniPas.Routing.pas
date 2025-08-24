@@ -46,8 +46,21 @@ type
     class function GetOpenPageInfo: String; static;
     class procedure FreeAndNilActiveFrame; static;
     class function FormatPageName(const sPageName: String): String; static;
+  
   public
-    class procedure RenderPage(ContainerControl: TLibContainerControl; sPageName: String; sPageInfo: String = ''; sPageTitle: String = ''; sPageQueryString: String = ''; ReplaceState: Boolean = False); static;
+  	type
+      TRenderPageOptions = record
+      	ContainerControl: TLibContainerControl;
+      	PageName: String;
+      	PageInfo: String;
+      	PageTitle: String;
+      	PageQueryString: String;
+      	ReplaceState: Boolean;
+      	class operator Initialize(out Dest: TRenderPageOptions);
+      end;
+
+    class procedure RenderPage(const Options: TRenderPageOptions); overload; static;
+    class procedure RenderPage(PageName: String; PageInfo: String = ''; PageTitle: String = ''); overload; static;
     class property OpenPageName: String read GetOpenPageName;
     class property OpenPageNamePrevious: String read GetOpenPageNamePrevious;
     class property OpenPageInfo: String read GetOpenPageInfo;
@@ -81,8 +94,10 @@ begin
   end);
 end;
 
-class procedure TUniPas.RenderPage(ContainerControl: TLibContainerControl; sPageName, sPageInfo, sPageTitle, sPageQueryString: String; ReplaceState: Boolean);
-  procedure SelectFrame;
+class procedure TUniPas.RenderPage(const Options: TRenderPageOptions);
+var
+  ContainerControl: TLibContainerControl;
+  procedure SelectFrame(sPageName, sPageInfo, sPageTitle, sPageQueryString: String; ReplaceState: Boolean);
     procedure CreateAppFrame(FramePage: TLibFrame; FrameName: String);
     begin
       FramePage.Name := FrameName;
@@ -139,18 +154,20 @@ class procedure TUniPas.RenderPage(ContainerControl: TLibContainerControl; sPage
     if (PageFound = False) then
     begin
       sPageName := '404PageNotFound';
-      SelectFrame;
+      SelectFrame(sPageName, sPageInfo, sPageTitle, sPageQueryString, ReplaceState);
     end;
   end;
 begin
+  ContainerControl := Options.ContainerControl;
+
   {$IFDEF PAS2JS}
-    SetState(ReplaceState, sPageName, sPageQueryString, sPageTitle);
+    SetState(Options.ReplaceState, Options.PageName, Options.PageQueryString, Options.PageTitle);
   {$ENDIF}
 
   // Update global open-page variables here so the routing unit owns page state.
   UniPasPageNamePrevious := UniPasPageName;
-  UniPasPageName := sPageName;
-  UniPasPageInfo := sPageInfo;
+  UniPasPageName := Options.PageName;
+  UniPasPageInfo := Options.PageInfo;
 
 
   if (ContainerControl = nil) and Assigned(UniPas.Routing.Variables.UniPasContainerControl) then
@@ -158,7 +175,28 @@ begin
   if not Assigned(ContainerControl) then
     raise Exception.Create('TUniPas.RenderPage: No container control supplied and UniPasContainerControl is not set.');
 
-  SelectFrame;
+  SelectFrame(Options.PageName, Options.PageInfo, Options.PageTitle, Options.PageQueryString, Options.ReplaceState);
+end;
+
+class operator TUniPas.TRenderPageOptions.Initialize(out Dest: TRenderPageOptions);
+begin
+  Dest.ContainerControl := nil;
+  Dest.PageName := '';
+  Dest.PageInfo := '';
+  Dest.PageTitle := '';
+  Dest.PageQueryString := '';
+  Dest.ReplaceState := False;
+end;
+
+
+class procedure TUniPas.RenderPage(PageName: String; PageInfo: String = ''; PageTitle: String = '');
+var
+  opts: TRenderPageOptions;
+begin
+  opts.PageName := PageName;
+  opts.PageInfo := PageInfo;
+  opts.PageTitle := PageTitle;
+  TUniPas.RenderPage(opts);
 end;
 
 class function TUniPas.GetOpenPageName: String;

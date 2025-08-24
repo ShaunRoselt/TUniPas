@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes;
-  
+
 var
   UniPasContainerControl: TObject;
   UniPasPageName: String; // The name of the current OpenPage Frame

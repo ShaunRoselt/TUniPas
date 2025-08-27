@@ -8,7 +8,6 @@ uses
   FMX.Controls.Presentation, FMX.StdCtrls, FMX.Layouts,
 
   uConfig,
-  UniPas.Routing.Variables,
   UniPas.Routing;
 
 type
@@ -73,10 +72,8 @@ end;
 
 procedure TFrmMain.FormCreate(Sender: TObject);
 begin
-  // Register the container control globally so frames can call RenderPage(nil, ...)
-  UniPas.Routing.Variables.UniPasContainerControl := TObject(UniPasContainer);
-  UniPasPageName := 'Home';
-  TUniPas.RenderPage(UniPasPageName);
+  TUniPas.SetDefaultContainerControl(UniPasContainer);
+  TUniPas.RenderPage('Home');
 end;
 
 end.

@@ -41,12 +41,13 @@ type
 
   TUniPas = record
   private
+    class function GetDefaultContainerControl: TObject; static;
     class function GetOpenPageName: String; static;
     class function GetOpenPageNamePrevious: String; static;
     class function GetOpenPageInfo: String; static;
     class procedure FreeAndNilActiveFrame; static;
     class function FormatPageName(const sPageName: String): String; static;
-  
+    class property DefaultContainerControl: TObject read GetDefaultContainerControl;
   public
   	type
       TRenderPageOptions = record
@@ -59,8 +60,10 @@ type
       	class operator Initialize(out Dest: TRenderPageOptions);
       end;
 
+    class procedure RenderPage(PageName: String; PageInfo: String = ''; PageTitle: String = ''); overload; static; // Preferred
+    class procedure RenderPage(ContainerControl: TLibContainerControl; PageName: String; PageInfo: String = ''; PageTitle: String = ''); overload; static;
     class procedure RenderPage(const Options: TRenderPageOptions); overload; static;
-    class procedure RenderPage(PageName: String; PageInfo: String = ''; PageTitle: String = ''); overload; static;
+    class procedure SetDefaultContainerControl(AControl: TObject); static; // Set in MainForm's onCreate method
     class property OpenPageName: String read GetOpenPageName;
     class property OpenPageNamePrevious: String read GetOpenPageNamePrevious;
     class property OpenPageInfo: String read GetOpenPageInfo;
@@ -178,6 +181,11 @@ begin
   SelectFrame(Options.PageName, Options.PageInfo, Options.PageTitle, Options.PageQueryString, Options.ReplaceState);
 end;
 
+class procedure TUniPas.SetDefaultContainerControl(AControl: TObject);
+begin
+  UniPas.Routing.Variables.UniPasContainerControl := AControl;
+end;
+
 class operator TUniPas.TRenderPageOptions.Initialize(out Dest: TRenderPageOptions);
 begin
   Dest.ContainerControl := nil;
@@ -207,6 +215,22 @@ end;
 class function TUniPas.GetOpenPageNamePrevious: String;
 begin
   Result := UniPas.Routing.Variables.UniPasPageNamePrevious;
+end;
+
+class procedure TUniPas.RenderPage(ContainerControl: TLibContainerControl; PageName, PageInfo, PageTitle: String);
+var
+  opts: TRenderPageOptions;
+begin
+  opts.ContainerControl := ContainerControl;
+  opts.PageName := PageName;
+  opts.PageInfo := PageInfo;
+  opts.PageTitle := PageTitle;
+  TUniPas.RenderPage(opts);
+end;
+
+class function TUniPas.GetDefaultContainerControl: TObject;
+begin
+  Result := UniPas.Routing.Variables.UniPasContainerControl;
 end;
 
 class function TUniPas.GetOpenPageInfo: String;

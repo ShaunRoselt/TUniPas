@@ -46,6 +46,7 @@ type
     class function GetOpenPageNamePrevious: String; static;
     class function GetOpenPageInfo: String; static;
     class procedure FreeAndNilActiveFrame; static;
+    class procedure ReportRoutingError(const Msg: String); static; // The only reason for this existing is because I kept getting errors when very quickly switching between different frames from within frames. It causes a runtime access violation. Still not fixed. I just swollow the exceptions right now.
     class function FormatPageName(const sPageName: String): String; static;
     class property DefaultContainerControl: TObject read GetDefaultContainerControl;
   public
@@ -83,7 +84,6 @@ begin
   // and freeing it queued so caller stack can unwind first.
   if not Assigned(ActiveFrame) then
     Exit;
-
   AF := ActiveFrame;
   ActiveFrame := nil;
 
@@ -95,6 +95,22 @@ begin
       // swallow exceptions to avoid crashing during cleanup
     end;
   end);
+end;
+
+class procedure TUniPas.ReportRoutingError(const Msg: String);
+begin
+  try
+    if Assigned(UniPas.Routing.Variables.UniPasErrorLog) then
+      UniPas.Routing.Variables.UniPasErrorLog.Add(FormatDateTime('yyyy-mm-dd hh:nn:ss', Now) + ' - ' + Msg);
+  except
+    // swallow any logging errors
+  end;
+  {$IFDEF PAS2JS}
+  try
+    console.log('UniPas Routing Error: ' + Msg);
+  except
+  end;
+  {$ENDIF}
 end;
 
 class procedure TUniPas.RenderPage(const Options: TRenderPageOptions);
@@ -133,8 +149,25 @@ var
       if (PageArrayItem = sPageName) then
       begin
         var CompClass := TComponentClass(GetClass('TFrame_'+PageArrayItem));
-        ActiveFrame := TLibFrame(CompClass.Create(Application));
-        CreateAppFrame(ActiveFrame,'lay'+PageArrayItem);
+        try
+          ActiveFrame := TLibFrame(CompClass.Create(Application));
+          try
+            CreateAppFrame(ActiveFrame,'lay'+PageArrayItem);
+          except
+            on E: Exception do
+            begin
+              TUniPas.ReportRoutingError('CreateAppFrame: ' + E.ClassName + ': ' + E.Message);
+              FreeAndNil(ActiveFrame);
+              ActiveFrame := nil;
+            end;
+          end;
+        except
+          on E: Exception do
+          begin
+            TUniPas.ReportRoutingError('CreateFrame: ' + E.ClassName + ': ' + E.Message);
+            ActiveFrame := nil;
+          end;
+        end;
       end;
     end;
 
@@ -147,11 +180,21 @@ var
     {$ENDIF}
     for I := 0 to ControlsCount-1 do // Loop through all tools and hide them
     begin
-      Visibility := String(TControl(ContainerControl.Controls[I]).ClassName) = ('TFrame_' + sPageName);
-      TControl(ContainerControl.Controls[I]).Visible := Visibility;
+      try
+        Visibility := String(TControl(ContainerControl.Controls[I]).ClassName) = ('TFrame_' + sPageName);
+        try
+          TControl(ContainerControl.Controls[I]).Visible := Visibility;
+        except
+          on E: Exception do
+            TUniPas.ReportRoutingError('SetVisible: ' + E.ClassName + ': ' + E.Message);
+        end;
 
-      if (Visibility = True) AND (PageFound = False) then
-        PageFound := True;
+        if (Visibility = True) AND (PageFound = False) then
+          PageFound := True;
+      except
+        on E: Exception do
+          TUniPas.ReportRoutingError('IterateControls: ' + E.ClassName + ': ' + E.Message);
+      end;
     end;
 
     if (PageFound = False) then

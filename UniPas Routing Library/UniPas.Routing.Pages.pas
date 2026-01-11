@@ -4,11 +4,7 @@ interface
 
 uses
   System.Classes,
-  UniPas.uPage_404PageNotFound,
-
-  uPage_Home,
-  uPage_About,
-  uPage_Instructions;
+  UniPas.uPage_404PageNotFound;
 
 const
   PagesArray: TArray<String> = ['404PageNotFound'];

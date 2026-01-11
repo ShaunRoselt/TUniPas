@@ -11,16 +11,12 @@ uses
   uPage_Instructions;
 
 const
-  PagesArray: TArray<String> = ['404PageNotFound',
-                                'Home',
-                                'About',
-                                'Instructions'
-                               ];
+  PagesArray: TArray<String> = ['404PageNotFound'];
 
 implementation
 
 initialization
   // Register all page frame classes in one place.
-  RegisterClasses([TPage_404PageNotFound, TPage_Home, TPage_About, TPage_Instructions]);
+  RegisterClasses([TPage_404PageNotFound]);
 
 end.

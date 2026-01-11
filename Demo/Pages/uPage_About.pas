@@ -1,4 +1,4 @@
-unit uFrame_About;
+unit uPage_About;
 
 interface
 
@@ -7,7 +7,7 @@ uses
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls, FMX.Controls.Presentation;
 
 type
-  TFrame_About = class(TFrame)
+  TPage_About = class(TFrame)
     Label1: TLabel;
     Button1: TButton;
     procedure Button1Click(Sender: TObject);
@@ -18,7 +18,7 @@ type
   end;
 
 var
-  Frame_About: TFrame_About;
+  Page_About: TPage_About;
 
 implementation
 
@@ -27,7 +27,7 @@ implementation
 uses
   UniPas.Routing;
 
-procedure TFrame_About.Button1Click(Sender: TObject);
+procedure TPage_About.Button1Click(Sender: TObject);
 begin
   TUniPas.RenderPage('Home');
 end;

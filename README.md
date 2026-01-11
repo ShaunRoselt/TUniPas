@@ -14,7 +14,7 @@ Key goals:
 
 ## How it works
 
-- Pages: each page is implemented as a Delphi frame class named `TFrame_<PageName>` and listed in `PagesArray` (see `Lib/UniPas/UniPas.Routing.Pages.pas`).
+- Pages: each page is implemented as a Delphi frame class named `TPage_<PageName>` and listed in `PagesArray` (see `Demo/Lib/UniPas/UniPas.Routing.Pages.pas` or the routing unit in the "UniPas Routing Library" folder).
 - Container control: the app sets a default container (`TUniPas.SetDefaultContainerControl`) which is where frames are created and parented. The container is usually a `TLayout` or other control placed on the main form.
 - Routing: call `TUniPas.RenderPage('PageName', PageInfo)` to navigate. `RenderPage` formats the page name, frees the previous active frame, creates (or shows) the target frame and updates global state (`UniPasPageName`, `UniPasPageInfo`).
 - Frame lifetime: the routing unit owns a global `ActiveFrame` reference. The implementation frees the previous frame before creating a new one. This avoids multiple frames stacking in the container.
@@ -31,7 +31,7 @@ Internals you may inspect:
 	TUniPas.SetDefaultContainerControl(UniPasContainer); // UniPasContainer is a TLayout
 	TUniPas.RenderPage('Home');
 
-2. Implement pages as frames named `TFrame_Home`, `TFrame_About`, etc., and ensure they are registered so `GetClass('TFrame_'+PageName)` can find them.
+2. Implement pages as frames named `TPage_Home`, `TPage_About`, etc., with unit filenames following the `uPage_<Name>.pas` pattern (for example `uPage_Home.pas` in `Demo/Pages`) and ensure they are registered so `GetClass('TPage_'+PageName)` can find them. The registration list lives in `UniPas.Routing.Pages` (example: `Demo/Lib/UniPas/UniPas.Routing.Pages.pas`).
 
 3. Navigate by calling `TUniPas.RenderPage('PageName')` from buttons or code.
 

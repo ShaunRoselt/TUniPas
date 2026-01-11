@@ -4,11 +4,11 @@ interface
 
 uses
   System.Classes,
-  UniPas.uFrame_404PageNotFound,
+  UniPas.uPage_404PageNotFound,
 
-  uFrame_Home,
-  uFrame_About,
-  uFrame_Instructions;
+  uPage_Home,
+  uPage_About,
+  uPage_Instructions;
 
 const
   PagesArray: TArray<String> = ['404PageNotFound',
@@ -21,6 +21,6 @@ implementation
 
 initialization
   // Register all page frame classes in one place.
-  RegisterClasses([TFrame_404PageNotFound, TFrame_Home, TFrame_About, TFrame_Instructions]);
+  RegisterClasses([TPage_404PageNotFound, TPage_Home, TPage_About, TPage_Instructions]);
 
 end.

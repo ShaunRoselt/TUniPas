@@ -1,4 +1,4 @@
-unit uFrame_Home;
+unit uPage_Home;
 
 interface
 
@@ -8,7 +8,7 @@ uses
   FMX.Controls.Presentation;
 
 type
-  TFrame_Home = class(TFrame)
+  TPage_Home = class(TFrame)
     btnAboutPage: TButton;
     Label1: TLabel;
     btnInstructionsPage: TButton;
@@ -27,12 +27,12 @@ implementation
 uses
   UniPas.Routing;
 
-procedure TFrame_Home.btnAboutPageClick(Sender: TObject);
+procedure TPage_Home.btnAboutPageClick(Sender: TObject);
 begin
   TUniPas.RenderPage('About');
 end;
 
-procedure TFrame_Home.btnInstructionsPageClick(Sender: TObject);
+procedure TPage_Home.btnInstructionsPageClick(Sender: TObject);
 begin
   TUniPas.RenderPage('Instructions');
 end;

@@ -148,7 +148,7 @@ var
     begin
       if (PageArrayItem = sPageName) then
       begin
-        var CompClass := TComponentClass(GetClass('TFrame_'+PageArrayItem));
+        var CompClass := TComponentClass(GetClass('TPage_'+PageArrayItem));
         try
           ActiveFrame := TLibFrame(CompClass.Create(Application));
           try
@@ -181,7 +181,7 @@ var
     for I := 0 to ControlsCount-1 do // Loop through all tools and hide them
     begin
       try
-        Visibility := String(TControl(ContainerControl.Controls[I]).ClassName) = ('TFrame_' + sPageName);
+        Visibility := String(TControl(ContainerControl.Controls[I]).ClassName) = ('TPage_' + sPageName);
         try
           TControl(ContainerControl.Controls[I]).Visible := Visibility;
         except

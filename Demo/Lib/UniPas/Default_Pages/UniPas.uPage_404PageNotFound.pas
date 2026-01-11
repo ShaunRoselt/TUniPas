@@ -1,4 +1,4 @@
-unit UniPas.uFrame_404PageNotFound;
+unit UniPas.uPage_404PageNotFound;
 
 interface
 
@@ -8,7 +8,7 @@ uses
   FMX.Controls.Presentation;
 
 type
-  TFrame_404PageNotFound = class(TFrame)
+  TPage_404PageNotFound = class(TFrame)
     layFrameContainer: TPanel;
     Label1: TLabel;
   private
@@ -18,7 +18,7 @@ type
   end;
 
 var
-  Frame_404PageNotFound: TFrame_404PageNotFound;
+  Page_404PageNotFound: TPage_404PageNotFound;
 
 implementation
 

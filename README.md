@@ -39,3 +39,14 @@ Internals you may inspect:
 
 - FireMonkey (Windows/macOS/iOS/Android): Frames are `TFrame`.
 - PAS2JS / TMS Web Core: Frames are `TWebFrame` (routing adapts to web APIs when compiled with `PAS2JS`).
+
+## Multilanguage support
+
+UniPas includes a simple multilanguage subsystem for translating form and frame text at runtime.
+
+- API: use `TUniPasTranslations.SetLanguage('<lang>')` (for example `TUniPasTranslations.SetLanguage('af')`) to switch languages at runtime.
+- Registration: language units call `TUniPasTranslations.RegisterTranslations(...)` in their `initialization` section to populate the translation catalog.
+- Translation files: language units use `ACatalog.SetValue('<lang>', '<Key>', '<Value>')` entries. Keys follow the pattern `Root.Component.Property` (e.g. `FrmMain.Button1.Text` or `Page_Home.Label1.Text`).
+- Generator: call `TUniPasTranslations.GenerateEnglishTranslationFile()` to scan forms and registered pages/frames and emit an English `.pas` translation unit (which auto-registers on initialization).
+
+The subsystem is intentionally small and defensive: generated English files are overwritten on generation, and translations are applied to frames immediately after they are created so dynamic pages update correctly.

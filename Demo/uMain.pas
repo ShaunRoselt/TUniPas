@@ -20,6 +20,8 @@ type
     Button1: TButton;
     Button5: TButton;
     Button6: TButton;
+    RadioButton1: TRadioButton;
+    RadioButton2: TRadioButton;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -27,6 +29,8 @@ type
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
+    procedure RadioButton1Click(Sender: TObject);
+    procedure RadioButton2Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -73,7 +77,25 @@ end;
 procedure TFrmMain.FormCreate(Sender: TObject);
 begin
   TUniPas.SetDefaultContainerControl(UniPasContainer);
+  TUniPas.SetLanguage('en');
   TUniPas.RenderPage('Home');
+
+  {$IFDEF DEBUG}
+    // Generates an English Translation file in the same folder as your EXE
+    TUniPas.GenerateEnglishTranslationFile();
+  {$ENDIF}
+end;
+
+procedure TFrmMain.RadioButton1Click(Sender: TObject);
+begin
+  // Switch Language to Afrikaans
+  TUniPas.SetLanguage('af');
+end;
+
+procedure TFrmMain.RadioButton2Click(Sender: TObject);
+begin
+  // Switch Language to English
+  TUniPas.SetLanguage('en');
 end;
 
 end.

@@ -11,7 +11,10 @@ uses
   UniPas.Routing.Pages in 'Lib\UniPas\UniPas.Routing.Pages.pas',
   uPage_Instructions in 'Pages\uPage_Instructions.pas' {Page_Instructions: TFrame},
   UniPas.Routing.Variables in 'Lib\UniPas\UniPas.Routing.Variables.pas',
-  UniPas.uPage_404PageNotFound in 'Lib\UniPas\Default_Pages\UniPas.uPage_404PageNotFound.pas' {Page_404PageNotFound: TFrame};
+  UniPas.uPage_404PageNotFound in 'Lib\UniPas\Default_Pages\UniPas.uPage_404PageNotFound.pas' {Page_404PageNotFound: TFrame},
+  UniPas.LanguageSupport in '..\UniPas Routing Library\UniPas.LanguageSupport.pas',
+  UniPas.LanguageSupport.AF in '..\UniPas Routing Library\Language_Translations\UniPas.LanguageSupport.AF.pas',
+  UniPas.LanguageSupport.EN in '..\UniPas Routing Library\Language_Translations\UniPas.LanguageSupport.EN.pas';
 
 {$R *.res}
 

@@ -27,7 +27,8 @@ uses
   {$ENDIF}
 
   UniPas.Routing.Pages,
-  UniPas.Routing.Variables;
+  UniPas.Routing.Variables,
+  UniPas.LanguageSupport;
 
 
 type
@@ -65,6 +66,9 @@ type
     class procedure RenderPage(ContainerControl: TLibContainerControl; PageName: String; PageInfo: String = ''; PageTitle: String = ''); overload; static;
     class procedure RenderPage(const Options: TRenderPageOptions); overload; static;
     class procedure SetDefaultContainerControl(AControl: TObject); static; // Set in MainForm's onCreate method
+    class procedure RegisterTranslations(const ARegisterProc: TUniPasTranslationRegisterProc); static; // Translation registration wrapper
+    class procedure SetLanguage(const ALang: String); static; // Set current language
+    class function GenerateEnglishTranslationFile(const AFileName: String = ''; const AUnitName: String = ''): Boolean; static; // Generate EN translation unit
     class property OpenPageName: String read GetOpenPageName;
     class property OpenPageNamePrevious: String read GetOpenPageNamePrevious;
     class property OpenPageInfo: String read GetOpenPageInfo;
@@ -222,11 +226,30 @@ begin
     raise Exception.Create('TUniPas.RenderPage: No container control supplied and UniPasContainerControl is not set.');
 
   SelectFrame(Options.PageName, Options.PageInfo, Options.PageTitle, Options.PageQueryString, Options.ReplaceState);
+
+  // Apply translations to newly created page/frame
+  if Assigned(ActiveFrame) then
+    TUniPasTranslations.ApplyTranslationsToRoot(ActiveFrame);
 end;
 
 class procedure TUniPas.SetDefaultContainerControl(AControl: TObject);
 begin
   UniPas.Routing.Variables.UniPasContainerControl := AControl;
+end;
+
+class procedure TUniPas.RegisterTranslations(const ARegisterProc: TUniPasTranslationRegisterProc);
+begin
+  TUniPasTranslations.RegisterTranslations(ARegisterProc);
+end;
+
+class procedure TUniPas.SetLanguage(const ALang: String);
+begin
+  TUniPasTranslations.SetLanguage(ALang);
+end;
+
+class function TUniPas.GenerateEnglishTranslationFile(const AFileName: String = ''; const AUnitName: String = ''): Boolean;
+begin
+  Result := TUniPasTranslations.GenerateEnglishTranslationFile(AFileName, AUnitName);
 end;
 
 class operator TUniPas.TRenderPageOptions.Initialize(out Dest: TRenderPageOptions);

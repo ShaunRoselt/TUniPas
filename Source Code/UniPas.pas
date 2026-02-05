@@ -1,6 +1,6 @@
 { ============================================================================
   UniPas Framework
-  A modular Delphi framework for building applications with:
+  A modular Delphi framework for building FireMonkey applications with:
   - Routing (page/frame navigation)
   - Language Support (multi-language translations)
   - AppSettings (JSON-based configuration)
@@ -15,7 +15,7 @@
   No need to create or free - the framework manages itself automatically.
   ============================================================================ }
 unit UniPas;
-0
+
 interface
 
 uses
@@ -32,7 +32,6 @@ type
   { TUniPas - Main framework class (singleton with class properties) }
   TUniPas = class
   private
-    class var FInstance: TUniPas;
     class var FRouting: TUniPasRouting;
     class var FLanguageSupport: TUniPasLanguageSupport;
     class var FAppSettings: TUniPasAppSettings;
@@ -54,17 +53,14 @@ type
 
   { TUniPasRouting - Routing module for page/frame navigation }
   TUniPasRouting = class
-  public
-    type
-      TRenderPageOptions = record
-        ContainerControl: TObject;
-        PageName: string;
-        PageInfo: string;
-        PageTitle: string;
-        PageQueryString: string;
-        ReplaceState: Boolean;
-        class operator Initialize(out Dest: TRenderPageOptions);
-      end;
+  public type
+    TRenderPageOptions = record
+      ContainerControl: TObject;
+      PageName: string;
+      PageInfo: string;
+      PageTitle: string;
+      class operator Initialize(out Dest: TRenderPageOptions);
+    end;
   private
     FDefaultContainerControl: TObject;
     FCurrentPageName: string;
@@ -75,7 +71,7 @@ type
     FOnPageChanged: TNotifyEvent;
     FOnRoutingError: TGetStrProc;
     procedure DoPageChanged;
-    procedure ReportError(const Msg: string);
+    procedure ReportError(const AMsg: string);
     function FormatPageName(const APageName: string): string;
     procedure FreeActiveFrame;
     procedure FlushPendingFreeFrames;
@@ -83,9 +79,9 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure RenderPage(const PageName: string; const PageInfo: string = ''; const PageTitle: string = ''); overload;
-    procedure RenderPage(ContainerControl: TObject; const PageName: string; const PageInfo: string = ''; const PageTitle: string = ''); overload;
-    procedure RenderPage(const Options: TRenderPageOptions); overload;
+    procedure RenderPage(const APageName: string; const APageInfo: string = ''; const APageTitle: string = ''); overload;
+    procedure RenderPage(AContainerControl: TObject; const APageName: string; const APageInfo: string = ''; const APageTitle: string = ''); overload;
+    procedure RenderPage(const AOptions: TRenderPageOptions); overload;
     procedure SetDefaultContainerControl(AControl: TObject);
 
     property CurrentPageName: string read FCurrentPageName;
@@ -124,9 +120,9 @@ type
     FSettingsImpl: TObject;
     function GetFilePath: string;
     function GetAutoSave: Boolean;
-    procedure SetAutoSave(const Value: Boolean);
+    procedure SetAutoSave(const AValue: Boolean);
     function GetOnChange: TNotifyEvent;
-    procedure SetOnChange(const Value: TNotifyEvent);
+    procedure SetOnChange(const AValue: TNotifyEvent);
   public
     constructor Create(const AFilePath: string = '');
     destructor Destroy; override;
@@ -164,29 +160,16 @@ implementation
 uses
   System.StrUtils,
   System.Contnrs,
-  {$IFDEF PAS2JS}
-  WEBLib.Forms,
-  WEBLib.Controls,
-  Vcl.Controls,
-  {$ELSE}
   FMX.Forms,
   FMX.Controls,
   FMX.Types,
-  {$ENDIF}
   UniPas.AppSettings,
-  UniPas.LanguageSupport,
   UniPas.Routing.Pages,
   UniPas.Routing.Variables;
 
-{$IFDEF PAS2JS}
 type
-  TLibFrame = type TWebFrame;
-  TLibContainerControl = type TWebCustomControl;
-{$ELSE}
-type
-  TLibFrame = type TFrame;
-  TLibContainerControl = type TControl;
-{$ENDIF}
+  TLibFrame = TFrame;
+  TLibContainerControl = TControl;
 
 { TUniPas }
 
@@ -219,8 +202,6 @@ begin
   Dest.PageName := '';
   Dest.PageInfo := '';
   Dest.PageTitle := '';
-  Dest.PageQueryString := '';
-  Dest.ReplaceState := False;
 end;
 
 { TUniPasRouting }
@@ -241,8 +222,6 @@ begin
   // Don't free pending frames here - they were created with Application as owner,
   // so Application already freed them during shutdown. Just free the list.
   FPendingFreeFrames.Free;
-
-  // Don't free FActiveFrame either - same reason.
   FActiveFrame := nil;
   inherited;
 end;
@@ -253,23 +232,17 @@ begin
     FOnPageChanged(Self);
 end;
 
-procedure TUniPasRouting.ReportError(const Msg: string);
+procedure TUniPasRouting.ReportError(const AMsg: string);
 begin
   try
     if Assigned(UniPas.Routing.Variables.UniPasErrorLog) then
-      UniPas.Routing.Variables.UniPasErrorLog.Add(FormatDateTime('yyyy-mm-dd hh:nn:ss', Now) + ' - ' + Msg);
+      UniPas.Routing.Variables.UniPasErrorLog.Add(FormatDateTime('yyyy-mm-dd hh:nn:ss', Now) + ' - ' + AMsg);
 
     if Assigned(FOnRoutingError) then
-      FOnRoutingError(Msg);
+      FOnRoutingError(AMsg);
   except
     // Swallow logging errors
   end;
-  {$IFDEF PAS2JS}
-  try
-    console.log('UniPas Routing Error: ' + Msg);
-  except
-  end;
-  {$ENDIF}
 end;
 
 procedure TUniPasRouting.FreeActiveFrame;
@@ -280,7 +253,6 @@ begin
   // Add the frame to the pending free list instead of freeing immediately.
   // This prevents access violations when the user rapidly switches pages
   // while a button click handler is still on the call stack.
-  // The frames will be freed at the start of the next RenderPage call.
   try
     TLibFrame(FActiveFrame).Visible := False;
     TLibFrame(FActiveFrame).Parent := nil;
@@ -293,15 +265,12 @@ begin
 end;
 
 procedure TUniPasRouting.FlushPendingFreeFrames;
-var
-  I: Integer;
-  Frame: TObject;
 begin
   // Free all pending frames - safe to do at the start of RenderPage
   // because any previous button handlers have completed by now.
-  for I := FPendingFreeFrames.Count - 1 downto 0 do
+  for var I := FPendingFreeFrames.Count - 1 downto 0 do
   begin
-    Frame := TObject(FPendingFreeFrames[I]);
+    var Frame := TObject(FPendingFreeFrames[I]);
     FPendingFreeFrames.Delete(I);
     try
       Frame.Free;
@@ -312,14 +281,12 @@ begin
 end;
 
 function TUniPasRouting.FormatPageName(const APageName: string): string;
-var
-  PageNameItem: string;
 begin
   Result := APageName;
   if Result = '' then
     Result := 'Home'
   else
-    for PageNameItem in PagesArray do
+    for var PageNameItem in PagesArray do
       if SameText(Result, PageNameItem) then
         Result := PageNameItem;
 
@@ -327,43 +294,31 @@ begin
     Result := '404PageNotFound';
 end;
 
-procedure TUniPasRouting.RenderPage(const PageName: string; const PageInfo: string; const PageTitle: string);
-var
-  Opts: TRenderPageOptions;
+procedure TUniPasRouting.RenderPage(const APageName: string; const APageInfo: string; const APageTitle: string);
 begin
-  Opts.PageName := PageName;
-  Opts.PageInfo := PageInfo;
-  Opts.PageTitle := PageTitle;
+  var Opts: TRenderPageOptions;
+  Opts.PageName := APageName;
+  Opts.PageInfo := APageInfo;
+  Opts.PageTitle := APageTitle;
   RenderPage(Opts);
 end;
 
-procedure TUniPasRouting.RenderPage(ContainerControl: TObject; const PageName: string; const PageInfo: string; const PageTitle: string);
-var
-  Opts: TRenderPageOptions;
+procedure TUniPasRouting.RenderPage(AContainerControl: TObject; const APageName: string; const APageInfo: string; const APageTitle: string);
 begin
-  Opts.ContainerControl := ContainerControl;
-  Opts.PageName := PageName;
-  Opts.PageInfo := PageInfo;
-  Opts.PageTitle := PageTitle;
+  var Opts: TRenderPageOptions;
+  Opts.ContainerControl := AContainerControl;
+  Opts.PageName := APageName;
+  Opts.PageInfo := APageInfo;
+  Opts.PageTitle := APageTitle;
   RenderPage(Opts);
 end;
 
-procedure TUniPasRouting.RenderPage(const Options: TRenderPageOptions);
-var
-  ContainerControl: TLibContainerControl;
-  FormattedPageName: string;
-  CompClass: TComponentClass;
-  I: Integer;
-  PageFound: Boolean;
-  ControlsCount: Integer;
-  FrameVisible: Boolean;
+procedure TUniPasRouting.RenderPage(const AOptions: TRenderPageOptions);
 begin
   // Free any frames that were pending from previous navigations.
-  // Safe to do here because any button handlers have completed.
   FlushPendingFreeFrames;
 
-  ContainerControl := TLibContainerControl(Options.ContainerControl);
-
+  var ContainerControl := TLibContainerControl(AOptions.ContainerControl);
   if (ContainerControl = nil) and Assigned(FDefaultContainerControl) then
     ContainerControl := TLibContainerControl(FDefaultContainerControl);
 
@@ -372,29 +327,21 @@ begin
 
   // Update state
   FPreviousPageName := FCurrentPageName;
-  FCurrentPageName := Options.PageName;
-  FCurrentPageInfo := Options.PageInfo;
+  FCurrentPageName := AOptions.PageName;
+  FCurrentPageInfo := AOptions.PageInfo;
 
   // Also update global variables for backward compatibility
   UniPas.Routing.Variables.UniPasPageNamePrevious := FPreviousPageName;
   UniPas.Routing.Variables.UniPasPageName := FCurrentPageName;
   UniPas.Routing.Variables.UniPasPageInfo := FCurrentPageInfo;
 
-  {$IFDEF PAS2JS}
-  SetState(Options.ReplaceState, Options.PageName, Options.PageQueryString, Options.PageTitle);
-  {$ENDIF}
-
   // Free current active frame
   FreeActiveFrame;
 
-  {$IFDEF PAS2JS}
-  ContainerControl.ElementHandle.firstElementChild.innerHTML := '';
-  {$ENDIF}
-
-  FormattedPageName := FormatPageName(Options.PageName);
+  var FormattedPageName := FormatPageName(AOptions.PageName);
 
   // Create the new frame
-  CompClass := TComponentClass(GetClass('TPage_' + FormattedPageName));
+  var CompClass := TComponentClass(GetClass('TPage_' + FormattedPageName));
   if Assigned(CompClass) then
   begin
     try
@@ -403,12 +350,7 @@ begin
         TLibFrame(FActiveFrame).Name := 'lay' + FormattedPageName;
         TLibFrame(FActiveFrame).Visible := False;
         TLibFrame(FActiveFrame).Parent := ContainerControl;
-        {$IFDEF PAS2JS}
-        TLibFrame(FActiveFrame).Align := TAlign.alClient;
-        TLibFrame(FActiveFrame).LoadFromForm;
-        {$ELSE}
         TLibFrame(FActiveFrame).Align := TAlignLayout.Client;
-        {$ENDIF}
       except
         on E: Exception do
         begin
@@ -426,17 +368,13 @@ begin
   end;
 
   // Set visibility
-  PageFound := False;
-  {$IFDEF PAS2JS}
-  ControlsCount := ContainerControl.ControlCount;
-  {$ELSE}
-  ControlsCount := ContainerControl.ControlsCount;
-  {$ENDIF}
+  var PageFound := False;
+  var ControlsCount := ContainerControl.ControlsCount;
 
-  for I := 0 to ControlsCount - 1 do
+  for var I := 0 to ControlsCount - 1 do
   begin
     try
-      FrameVisible := TControl(ContainerControl.Controls[I]).ClassName = ('TPage_' + FormattedPageName);
+      var FrameVisible := TControl(ContainerControl.Controls[I]).ClassName = ('TPage_' + FormattedPageName);
       try
         TControl(ContainerControl.Controls[I]).Visible := FrameVisible;
       except
@@ -454,8 +392,7 @@ begin
 
   if not PageFound then
   begin
-    FormattedPageName := '404PageNotFound';
-    RenderPage(TObject(ContainerControl), FormattedPageName, Options.PageInfo, Options.PageTitle);
+    RenderPage(TObject(ContainerControl), '404PageNotFound', AOptions.PageInfo, AOptions.PageTitle);
     Exit;
   end;
 
@@ -469,7 +406,6 @@ end;
 procedure TUniPasRouting.SetDefaultContainerControl(AControl: TObject);
 begin
   FDefaultContainerControl := AControl;
-  // Also update global variable for backward compatibility
   UniPas.Routing.Variables.UniPasContainerControl := AControl;
 end;
 
@@ -544,9 +480,9 @@ begin
   Result := TAppSettingsImpl(FSettingsImpl).AutoSave;
 end;
 
-procedure TUniPasAppSettings.SetAutoSave(const Value: Boolean);
+procedure TUniPasAppSettings.SetAutoSave(const AValue: Boolean);
 begin
-  TAppSettingsImpl(FSettingsImpl).AutoSave := Value;
+  TAppSettingsImpl(FSettingsImpl).AutoSave := AValue;
 end;
 
 function TUniPasAppSettings.GetOnChange: TNotifyEvent;
@@ -554,9 +490,9 @@ begin
   Result := TAppSettingsImpl(FSettingsImpl).OnChange;
 end;
 
-procedure TUniPasAppSettings.SetOnChange(const Value: TNotifyEvent);
+procedure TUniPasAppSettings.SetOnChange(const AValue: TNotifyEvent);
 begin
-  TAppSettingsImpl(FSettingsImpl).OnChange := Value;
+  TAppSettingsImpl(FSettingsImpl).OnChange := AValue;
 end;
 
 procedure TUniPasAppSettings.LoadFromFile;

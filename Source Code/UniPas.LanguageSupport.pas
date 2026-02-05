@@ -1,4 +1,7 @@
-// Simple multi-language support for UniPas
+{ ============================================================================
+  UniPas.LanguageSupport
+  Multi-language translation support for UniPas framework.
+  ============================================================================ }
 unit UniPas.LanguageSupport;
 
 interface
@@ -7,29 +10,23 @@ uses
   System.SysUtils,
   System.Classes,
   System.TypInfo,
-  {$IFDEF PAS2JS}
-  WEBLib.Forms,
-  WEBLib.Controls
-  {$ELSE}
+  System.IOUtils,
   FMX.Forms,
-  FMX.Controls,
-  System.IOUtils
-  {$ENDIF}
-  ;
+  FMX.Controls;
 
 type
   TUniPasTranslationCatalog = class
   private
     FTranslations: TStringList;
-    FCurrentLanguage: String;
-    class function NormalizeKey(const AValue: String): String; static;
-    class function MakeKey(const ALang, AKey: String): String; static;
+    FCurrentLanguage: string;
+    class function NormalizeKey(const AValue: string): string; static;
+    class function MakeKey(const ALang, AKey: string): string; static;
   public
     constructor Create;
     destructor Destroy; override;
-    procedure SetValue(const ALang, AKey, AValue: String);
-    function GetValue(const ALang, AKey: String; const ADefault: String = ''): String;
-    property CurrentLanguage: String read FCurrentLanguage write FCurrentLanguage;
+    procedure SetValue(const ALang, AKey, AValue: string);
+    function GetValue(const ALang, AKey: string; const ADefault: string = ''): string;
+    property CurrentLanguage: string read FCurrentLanguage write FCurrentLanguage;
   end;
 
   TUniPasTranslationRegisterProc = procedure(const ACatalog: TUniPasTranslationCatalog);
@@ -38,17 +35,17 @@ type
   private
     class var FCatalog: TUniPasTranslationCatalog;
     class function Catalog: TUniPasTranslationCatalog; static;
-    class function GetRootKey(ARoot: TComponent): String; static;
+    class function GetRootKey(ARoot: TComponent): string; static;
     class function IsStringProp(const PropInfo: PPropInfo): Boolean; static;
     class procedure ApplyTranslationsToComponent(ARoot, AComponent: TComponent); static;
     class procedure CollectTranslationsFromComponent(ARoot, AComponent: TComponent; AList: TStrings); static;
-    class function EscapePascalString(const S: String): String; static;
+    class function EscapePascalString(const S: string): string; static;
   public
     class procedure RegisterTranslations(const ARegisterProc: TUniPasTranslationRegisterProc); static;
-    class procedure SetLanguage(const ALang: String); static;
+    class procedure SetLanguage(const ALang: string); static;
     class procedure ApplyTranslationsToRoot(ARoot: TComponent); static;
     class procedure ApplyTranslations; static;
-    class function GenerateEnglishTranslationFile(const AFileName: String = ''; const AUnitName: String = ''): Boolean; static;
+    class function GenerateEnglishTranslationFile(const AFileName: string = ''; const AUnitName: string = ''): Boolean; static;
   end;
 
 implementation
@@ -57,9 +54,9 @@ uses
   UniPas.Routing.Pages;
 
 const
-  TranslatableProperties: array[0..2] of String = ('Text', 'Caption', 'Hint');
+  TranslatableProperties: array[0..2] of string = ('Text', 'Caption', 'Hint');
 
-{ TTranslationCatalog }
+{ TUniPasTranslationCatalog }
 
 constructor TUniPasTranslationCatalog.Create;
 begin
@@ -67,7 +64,7 @@ begin
   FTranslations := TStringList.Create;
   FTranslations.NameValueSeparator := '=';
   FTranslations.CaseSensitive := True;
-  FTranslations.Sorted := False; // must be unsorted to allow value assignments at runtime
+  FTranslations.Sorted := False;
   FTranslations.Duplicates := dupIgnore;
 end;
 
@@ -77,23 +74,20 @@ begin
   inherited Destroy;
 end;
 
-class function TUniPasTranslationCatalog.NormalizeKey(const AValue: String): String;
+class function TUniPasTranslationCatalog.NormalizeKey(const AValue: string): string;
 begin
   Result := AValue.Trim.ToLower;
 end;
 
-class function TUniPasTranslationCatalog.MakeKey(const ALang, AKey: String): String;
+class function TUniPasTranslationCatalog.MakeKey(const ALang, AKey: string): string;
 begin
   Result := NormalizeKey(ALang) + '|' + NormalizeKey(AKey);
 end;
 
-procedure TUniPasTranslationCatalog.SetValue(const ALang, AKey, AValue: String);
-var
-  PrevSorted: Boolean;
-  Key: String;
+procedure TUniPasTranslationCatalog.SetValue(const ALang, AKey, AValue: string);
 begin
-  Key := MakeKey(ALang, AKey);
-  PrevSorted := FTranslations.Sorted;
+  var Key := MakeKey(ALang, AKey);
+  var PrevSorted := FTranslations.Sorted;
   if PrevSorted then
     FTranslations.Sorted := False;
   try
@@ -104,7 +98,7 @@ begin
   end;
 end;
 
-function TUniPasTranslationCatalog.GetValue(const ALang, AKey: String; const ADefault: String): String;
+function TUniPasTranslationCatalog.GetValue(const ALang, AKey: string; const ADefault: string): string;
 begin
   Result := FTranslations.Values[MakeKey(ALang, AKey)];
   if Result = '' then
@@ -122,12 +116,11 @@ end;
 
 class procedure TUniPasTranslations.RegisterTranslations(const ARegisterProc: TUniPasTranslationRegisterProc);
 begin
-  // assume callers may pass nil; guard to avoid AV when invoking nil proc
   if Assigned(ARegisterProc) then
     ARegisterProc(Catalog);
 end;
 
-class function TUniPasTranslations.GetRootKey(ARoot: TComponent): String;
+class function TUniPasTranslations.GetRootKey(ARoot: TComponent): string;
 begin
   if ARoot = nil then
     Exit('Root');
@@ -153,28 +146,23 @@ begin
 end;
 
 class procedure TUniPasTranslations.ApplyTranslationsToComponent(ARoot, AComponent: TComponent);
-var
-  PropName: String;
-  PropInfo: PPropInfo;
-  RootKey: String;
-  Key: String;
-  Value: String;
 begin
   if (AComponent = nil) or (ARoot = nil) or (AComponent.Name = '') then
     Exit;
 
-  RootKey := GetRootKey(ARoot);
-  for PropName in TranslatableProperties do
+  var RootKey := GetRootKey(ARoot);
+  for var PropName in TranslatableProperties do
   begin
-    PropInfo := GetPropInfo(AComponent, PropName);
+    var PropInfo := GetPropInfo(AComponent, PropName);
     if IsStringProp(PropInfo) then
     begin
+      var Key: string;
       if AComponent = ARoot then
         Key := RootKey + '.' + PropName
       else
         Key := RootKey + '.' + AComponent.Name + '.' + PropName;
 
-      Value := Catalog.GetValue(Catalog.CurrentLanguage, Key, '');
+      var Value := Catalog.GetValue(Catalog.CurrentLanguage, Key, '');
       if Value <> '' then
         SetStrProp(AComponent, PropInfo, Value);
     end;
@@ -182,25 +170,20 @@ begin
 end;
 
 class procedure TUniPasTranslations.CollectTranslationsFromComponent(ARoot, AComponent: TComponent; AList: TStrings);
-var
-  PropName: String;
-  PropInfo: PPropInfo;
-  RootKey: String;
-  Key: String;
-  Value: String;
 begin
   if (AComponent = nil) or (ARoot = nil) or (AComponent.Name = '') then
     Exit;
 
-  RootKey := GetRootKey(ARoot);
-  for PropName in TranslatableProperties do
+  var RootKey := GetRootKey(ARoot);
+  for var PropName in TranslatableProperties do
   begin
-    PropInfo := GetPropInfo(AComponent, PropName);
+    var PropInfo := GetPropInfo(AComponent, PropName);
     if IsStringProp(PropInfo) then
     begin
-      Value := GetStrProp(AComponent, PropInfo);
+      var Value := GetStrProp(AComponent, PropInfo);
       if Value <> '' then
       begin
+        var Key: string;
         if AComponent = ARoot then
           Key := RootKey + '.' + PropName
         else
@@ -212,117 +195,82 @@ begin
   end;
 end;
 
-class function TUniPasTranslations.EscapePascalString(const S: String): String;
+class function TUniPasTranslations.EscapePascalString(const S: string): string;
 begin
   Result := StringReplace(S, '''', '''''', [rfReplaceAll]);
 end;
 
-class procedure TUniPasTranslations.SetLanguage(const ALang: String);
+class procedure TUniPasTranslations.SetLanguage(const ALang: string);
 begin
   Catalog.CurrentLanguage := ALang.Trim;
   ApplyTranslations;
 end;
 
 class procedure TUniPasTranslations.ApplyTranslationsToRoot(ARoot: TComponent);
-var
-  J: Integer;
 begin
   if not Assigned(ARoot) then
     Exit;
 
   ApplyTranslationsToComponent(ARoot, ARoot);
-  for J := 0 to ARoot.ComponentCount - 1 do
+  for var J := 0 to ARoot.ComponentCount - 1 do
     ApplyTranslationsToComponent(ARoot, ARoot.Components[J]);
 end;
 
 class procedure TUniPasTranslations.ApplyTranslations;
-var
-  I: Integer;
-  J: Integer;
-  Root: TComponent;
 begin
-  {$IFDEF PAS2JS}
-  for I := 0 to Screen.FormCount - 1 do
+  for var I := 0 to Screen.FormCount - 1 do
   begin
-    Root := Screen.Forms[I];
+    var Root := Screen.Forms[I];
     ApplyTranslationsToComponent(Root, Root);
-    for J := 0 to Root.ComponentCount - 1 do
-      ApplyTranslationsToComponent(Root, Root.Components[J]);
-  end;
-  {$ELSE}
-  for I := 0 to Screen.FormCount - 1 do
-  begin
-    Root := Screen.Forms[I];
-    ApplyTranslationsToComponent(Root, Root);
-    for J := 0 to Root.ComponentCount - 1 do
+    for var J := 0 to Root.ComponentCount - 1 do
       ApplyTranslationsToComponent(Root, Root.Components[J]);
   end;
 
   if Assigned(Application) then
   begin
-    for I := 0 to Application.ComponentCount - 1 do
+    for var I := 0 to Application.ComponentCount - 1 do
     begin
-      Root := Application.Components[I];
+      var Root := Application.Components[I];
       if Root is TFrame then
       begin
         ApplyTranslationsToComponent(Root, Root);
-        for J := 0 to Root.ComponentCount - 1 do
+        for var J := 0 to Root.ComponentCount - 1 do
           ApplyTranslationsToComponent(Root, Root.Components[J]);
       end;
     end;
   end;
-  {$ENDIF}
 end;
 
-class function TUniPasTranslations.GenerateEnglishTranslationFile(const AFileName: String; const AUnitName: String): Boolean;
-var
-    Lines: TStringList;
-    Entries: TStringList;
-    UnitName: String;
-    I: Integer;
-    J: Integer;
-    Root: TComponent;
-  PageName: String;
-  PageClass: TComponentClass;
-  PageFrame: TFrame;
-  TargetFileName: String;
+class function TUniPasTranslations.GenerateEnglishTranslationFile(const AFileName: string; const AUnitName: string): Boolean;
 begin
   Result := False;
-  {$IFDEF PAS2JS}
-  Exit;
-  {$ELSE}
-  // If caller didn't provide a target filename, we'll choose a sensible
-  // default (placed alongside the executable) so callers can simply call
-  // GenerateEnglishTranslationFile('') and get an auto-named unit.
-  // Note: UnitName is determined below; if neither AUnitName nor AFileName
-  // are provided, we default the unit name to 'UniPas.LanguageSupport.EN'.
 
-  Lines := TStringList.Create;
-  Entries := TStringList.Create;
+  var Lines := TStringList.Create;
+  var Entries := TStringList.Create;
   try
     Entries.NameValueSeparator := '=';
     Entries.CaseSensitive := True;
-    Entries.Sorted := False; // keep unsorted so we can assign Values[] safely
+    Entries.Sorted := False;
     Entries.Duplicates := dupIgnore;
 
-    for I := 0 to Screen.FormCount - 1 do
+    for var I := 0 to Screen.FormCount - 1 do
     begin
-      Root := Screen.Forms[I];
+      var Root := Screen.Forms[I];
       CollectTranslationsFromComponent(Root, Root, Entries);
-      for J := 0 to Root.ComponentCount - 1 do
+      for var J := 0 to Root.ComponentCount - 1 do
         CollectTranslationsFromComponent(Root, Root.Components[J], Entries);
     end;
 
     // Collect translations from all registered pages/frames
-    for PageName in PagesArray do
+    for var PageName in PagesArray do
     begin
-      PageClass := TComponentClass(GetClass('TPage_' + PageName));
+      var PageClass := TComponentClass(GetClass('TPage_' + PageName));
       if Assigned(PageClass) then
       begin
-        PageFrame := TFrame(PageClass.Create(Application));
+        var PageFrame := TFrame(PageClass.Create(Application));
         try
           CollectTranslationsFromComponent(PageFrame, PageFrame, Entries);
-          for J := 0 to PageFrame.ComponentCount - 1 do
+          for var J := 0 to PageFrame.ComponentCount - 1 do
             CollectTranslationsFromComponent(PageFrame, PageFrame.Components[J], Entries);
         finally
           PageFrame.Free;
@@ -332,20 +280,20 @@ begin
 
     if Assigned(Application) then
     begin
-      for I := 0 to Application.ComponentCount - 1 do
+      for var I := 0 to Application.ComponentCount - 1 do
       begin
-        Root := Application.Components[I];
+        var Root := Application.Components[I];
         if Root is TFrame then
         begin
           CollectTranslationsFromComponent(Root, Root, Entries);
-          for J := 0 to Root.ComponentCount - 1 do
+          for var J := 0 to Root.ComponentCount - 1 do
             CollectTranslationsFromComponent(Root, Root.Components[J], Entries);
         end;
       end;
     end;
 
-    // Initialize local filename from the (const) parameter so we can modify it.
-    TargetFileName := AFileName.Trim;
+    var TargetFileName := AFileName.Trim;
+    var UnitName: string;
 
     if AUnitName.Trim = '' then
     begin
@@ -357,8 +305,6 @@ begin
     else
       UnitName := AUnitName.Trim;
 
-    // If no filename was provided, create one next to the executable
-    // using the chosen unit name.
     if TargetFileName = '' then
       TargetFileName := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) + UnitName + '.pas';
 
@@ -379,7 +325,7 @@ begin
     Lines.Add('procedure Register_Translations_EN(const ACatalog: TUniPasTranslationCatalog);');
     Lines.Add('begin');
 
-    for I := 0 to Entries.Count - 1 do
+    for var I := 0 to Entries.Count - 1 do
       Lines.Add(Format('  ACatalog.SetValue(''en'', ''%s'', ''%s'');',
         [Entries.Names[I], EscapePascalString(Entries.ValueFromIndex[I])]
       ));
@@ -393,8 +339,6 @@ begin
 
     TDirectory.CreateDirectory(ExtractFileDir(TargetFileName));
 
-    // Ensure any previous generated file is removed so the generated unit
-    // is always replaced cleanly (prevents stale content between runs).
     if FileExists(TargetFileName) then
       DeleteFile(TargetFileName);
 
@@ -404,14 +348,11 @@ begin
     Lines.Free;
     Entries.Free;
   end;
-  {$ENDIF}
 end;
 
 initialization
 
 finalization
-  // Free without an Assigned() check; TObject.Free is nil-safe and
-  // this ensures the class var is cleared for deterministic teardown.
   TUniPasTranslations.FCatalog.Free;
   TUniPasTranslations.FCatalog := nil;
 

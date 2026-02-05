@@ -6,13 +6,23 @@ This project is actively under development and is not ready for production use. 
 
 ## Overview
 
-UniPas is a modular Delphi framework for building applications with a unified codebase. It targets both FireMonkey (desktop/mobile) and PAS2JS/TMS Web Core (web) platforms.
+UniPas is a lightweight, opinionated framework for building FireMonkey (FMX) applications with a focus on three practical concerns:
+
+- Fast, frame-based routing and navigation for single-form app layouts.
+- Runtime language translation and catalog management for multilingual UIs.
+- Simple, JSON-backed application settings with dotted-key access for nested structures.
+
+Designed for Delphi 12 (Athens) and later, UniPas favors clarity and developer ergonomics:
+
+- Singleton-style entry (`TUniPas`) with lazy-created modules (`Routing`, `Lang`, `Settings`).
+- Minimal integration: drop frames named `TPage_<Name>` into your project and use `TUniPas.Routing.RenderPage`.
+- Safe frame lifecycle handling during rapid navigation and deterministic cleanup at shutdown.
 
 ### Features
 
-- **Routing** - Page/frame navigation with URL state management
-- **Language Support** - Multi-language translations at runtime
-- **App Settings** - JSON-based configuration with nested key support
+- **Routing** — Page/frame navigation with straightforward APIs and backward-compatible shared variables
+- **Language Support** — Translation catalog, automatic application to forms/frames, and translation generation tools
+- **App Settings** — JSON configuration with nested keys, type-safe getters/setters, and optional auto-save
 
 ## Quick Start
 
@@ -161,12 +171,6 @@ end;
 }
 ```
 
-## Supported Platforms
-
-| Platform | Frame Type | Notes |
-|----------|-----------|-------|
-| FireMonkey (Windows/macOS/iOS/Android) | `TFrame` | Full support |
-| PAS2JS / TMS Web Core | `TWebFrame` | Web-specific adaptations |
 
 ## File Structure
 

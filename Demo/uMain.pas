@@ -7,8 +7,7 @@ uses
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
   FMX.Controls.Presentation, FMX.StdCtrls, FMX.Layouts,
 
-  uConfig,
-  UniPas.Routing;
+  UniPas;
 
 type
   TFrmMain = class(TForm)
@@ -46,22 +45,22 @@ implementation
 
 procedure TFrmMain.Button1Click(Sender: TObject);
 begin
-  TUniPas.RenderPage('Home');
+  TUniPas.Routing.RenderPage('Home');
 end;
 
 procedure TFrmMain.Button2Click(Sender: TObject);
 begin
-  TUniPas.RenderPage('Hierdie bestaan nie');
+  TUniPas.Routing.RenderPage('Hierdie bestaan nie');
 end;
 
 procedure TFrmMain.Button3Click(Sender: TObject);
 begin
-  TUniPas.RenderPage('About');
+  TUniPas.Routing.RenderPage('About');
 end;
 
 procedure TFrmMain.Button4Click(Sender: TObject);
 begin
-  TUniPas.RenderPage('Login');
+  TUniPas.Routing.RenderPage('Login');
 end;
 
 procedure TFrmMain.Button5Click(Sender: TObject);
@@ -71,31 +70,43 @@ end;
 
 procedure TFrmMain.Button6Click(Sender: TObject);
 begin
-  TUniPas.RenderPage('Instructions');
+  TUniPas.Routing.RenderPage('Instructions');
 end;
 
 procedure TFrmMain.FormCreate(Sender: TObject);
 begin
-  TUniPas.SetDefaultContainerControl(UniPasContainer);
-  TUniPas.SetLanguage('en');
-  TUniPas.RenderPage('Home');
+  // Configure app info
+  TUniPas.AppName := 'UniPas Demo';
+  TUniPas.AppVersion := '0.1.0.0 Beta';
+
+  // Configure routing
+  TUniPas.Routing.SetDefaultContainerControl(UniPasContainer);
+
+  // Configure language
+  TUniPas.Lang.SetLanguage('en');
+
+  // Load settings (creates file if doesn't exist)
+  TUniPas.Settings.LoadFromFile;
+
+  // Navigate to home page
+  TUniPas.Routing.RenderPage('Home');
 
   {$IFDEF DEBUG}
     // Generates an English Translation file in the same folder as your EXE
-    TUniPas.GenerateEnglishTranslationFile();
+    TUniPas.Lang.GenerateEnglishTranslationFile();
   {$ENDIF}
 end;
 
 procedure TFrmMain.RadioButton1Click(Sender: TObject);
 begin
   // Switch Language to Afrikaans
-  TUniPas.SetLanguage('af');
+  TUniPas.Lang.SetLanguage('af');
 end;
 
 procedure TFrmMain.RadioButton2Click(Sender: TObject);
 begin
   // Switch Language to English
-  TUniPas.SetLanguage('en');
+  TUniPas.Lang.SetLanguage('en');
 end;
 
 end.

@@ -1,52 +1,210 @@
-# UniPas
-⚠️ IMPORTANT — Work in progress — NOT FOR PRODUCTION
+# UniPas Framework
+
+⚠️ **IMPORTANT — Work in progress — NOT FOR PRODUCTION**
 
 This project is actively under development and is not ready for production use. Do NOT use this library in production systems.
 
 ## Overview
 
-UniPas is a small Delphi framework for building single‑page application style apps from one codebase. It targets both FireMonkey (desktop/mobile) and PAS2JS/TMS Web Core (web) and provides a lightweight routing and frame-management layer so you can author UI pages as Delphi frames and switch between them at runtime.
+UniPas is a modular Delphi framework for building applications with a unified codebase. It targets both FireMonkey (desktop/mobile) and PAS2JS/TMS Web Core (web) platforms.
 
-Key goals:
-- Keep page UI modular using `TFrame`/`TWebFrame` components.
-- Provide simple string-based routing and state (page name, info, querystring).
-- Work with both FMX (native) and PAS2JS (web) targets with minimal changes.
+### Features
 
-## How it works
+- **Routing** - Page/frame navigation with URL state management
+- **Language Support** - Multi-language translations at runtime
+- **App Settings** - JSON-based configuration with nested key support
 
-- Pages: each page is implemented as a Delphi frame class named `TPage_<PageName>` and listed in `PagesArray` (see `Demo/Lib/UniPas/UniPas.Routing.Pages.pas` or the routing unit in the "UniPas Routing Library" folder).
-- Container control: the app sets a default container (`TUniPas.SetDefaultContainerControl`) which is where frames are created and parented. The container is usually a `TLayout` or other control placed on the main form.
-- Routing: call `TUniPas.RenderPage('PageName', PageInfo)` to navigate. `RenderPage` formats the page name, frees the previous active frame, creates (or shows) the target frame and updates global state (`UniPasPageName`, `UniPasPageInfo`).
-- Frame lifetime: the routing unit owns a global `ActiveFrame` reference. The implementation frees the previous frame before creating a new one. This avoids multiple frames stacking in the container.
+## Quick Start
 
-Internals you may inspect:
-- `Lib/UniPas/UniPas.Routing.pas`: Routing and frame lifecycle.
-- `Lib/UniPas/UniPas.Routing.Variables.pas`: Shared global variables (container, current page, error log).
-- `Lib/UniPas/UniPas.Routing.Pages.pas`: The list of available pages.
+```pascal
+uses
+  UniPas;
 
-## Quick start
+var
+  App: TUniPas;
 
-1. On your main form set the container control in `FormCreate`:
+procedure TMainForm.FormCreate(Sender: TObject);
+begin
+  // Create the framework instance
+  App := TUniPas.Create;
+  App.AppName := 'My Application';
+  
+  // Attach modules as needed
+  App.UseRouting;
+  App.UseLanguageSupport;
+  App.UseAppSettings;
+  
+  // Configure routing
+  App.Routing.SetDefaultContainerControl(MainContainer);
+  App.Routing.RenderPage('Home');
+  
+  // Configure language
+  App.Lang.SetLanguage('en');
+  
+  // Use app settings
+  App.Settings.LoadFromFile;
+  App.Settings.SetValue('UI.Theme', 'dark');
+  App.Settings.SetValue('User.LastLogin', Now);
+end;
 
-	TUniPas.SetDefaultContainerControl(UniPasContainer); // UniPasContainer is a TLayout
-	TUniPas.RenderPage('Home');
+procedure TMainForm.FormDestroy(Sender: TObject);
+begin
+  App.Free;
+end;
+```
 
-2. Implement pages as frames named `TPage_Home`, `TPage_About`, etc., with unit filenames following the `uPage_<Name>.pas` pattern (for example `uPage_Home.pas` in `Demo/Pages`) and ensure they are registered so `GetClass('TPage_'+PageName)` can find them. The registration list lives in `UniPas.Routing.Pages` (example: `Demo/Lib/UniPas/UniPas.Routing.Pages.pas`).
+## Modules
 
-3. Navigate by calling `TUniPas.RenderPage('PageName')` from buttons or code.
+### Routing Module
 
-## Supported platforms
+Manages page navigation using Delphi frames.
 
-- FireMonkey (Windows/macOS/iOS/Android): Frames are `TFrame`.
-- PAS2JS / TMS Web Core: Frames are `TWebFrame` (routing adapts to web APIs when compiled with `PAS2JS`).
+```pascal
+// Attach the routing module
+App.UseRouting;
 
-## Multilanguage support
+// Set the container control (usually a TLayout)
+App.Routing.SetDefaultContainerControl(MainContainer);
 
-UniPas includes a simple multilanguage subsystem for translating form and frame text at runtime.
+// Navigate to pages
+App.Routing.RenderPage('Home');
+App.Routing.RenderPage('About', 'some extra info');
 
-- API: use `TUniPasTranslations.SetLanguage('<lang>')` (for example `TUniPasTranslations.SetLanguage('af')`) to switch languages at runtime.
-- Registration: language units call `TUniPasTranslations.RegisterTranslations(...)` in their `initialization` section to populate the translation catalog.
-- Translation files: language units use `ACatalog.SetValue('<lang>', '<Key>', '<Value>')` entries. Keys follow the pattern `Root.Component.Property` (e.g. `FrmMain.Button1.Text` or `Page_Home.Label1.Text`).
-- Generator: call `TUniPasTranslations.GenerateEnglishTranslationFile()` to scan forms and registered pages/frames and emit an English `.pas` translation unit (which auto-registers on initialization).
+// Check current page
+if App.Routing.CurrentPageName = 'Home' then
+  // ...
 
-The subsystem is intentionally small and defensive: generated English files are overwritten on generation, and translations are applied to frames immediately after they are created so dynamic pages update correctly.
+// Handle page changes
+App.Routing.OnPageChanged := procedure(Sender: TObject)
+begin
+  UpdateStatusBar;
+end;
+```
+
+**Page Setup:**
+- Implement pages as frames named `TPage_<PageName>` (e.g., `TPage_Home`, `TPage_About`)
+- Register pages in `UniPas.Routing.Pages.pas`
+- Pages are auto-managed by the framework
+
+### Language Support Module
+
+Provides runtime translation of UI components.
+
+```pascal
+// Attach the language support module
+App.UseLanguageSupport;
+
+// Set the current language
+App.Lang.SetLanguage('en');  // English
+App.Lang.SetLanguage('af');  // Afrikaans
+
+// Handle language changes
+App.Lang.OnLanguageChanged := procedure(Sender: TObject)
+begin
+  RefreshUI;
+end;
+
+// Generate translation template
+App.Lang.GenerateEnglishTranslationFile;
+```
+
+**Translation Setup:**
+- Create language units (e.g., `UniPas.LanguageSupport.EN.pas`)
+- Use `ACatalog.SetValue('en', 'Page_Home.Label1.Text', 'Hello')` pattern
+- Translations auto-apply when pages are rendered
+
+### App Settings Module
+
+JSON-based configuration with auto-save support.
+
+```pascal
+// Attach the settings module (optional custom path)
+App.UseAppSettings;  // Default: appsettings.json
+// or
+App.UseAppSettings('/path/to/config.json');
+
+// Load existing settings
+App.Settings.LoadFromFile;
+
+// Set values (supports dotted paths for nesting)
+App.Settings.SetValue('AppName', 'My App');           // String
+App.Settings.SetValue('WindowWidth', 1024);           // Integer
+App.Settings.SetValue('Volume', 0.75);                // Double
+App.Settings.SetValue('UI.DarkMode', True);           // Boolean (nested)
+App.Settings.SetValue('User.Preferences.Font', 'Arial');  // Deep nesting
+
+// Get values with defaults
+var Theme := App.Settings.GetString('UI.Theme', 'light');
+var Width := App.Settings.GetInt('WindowWidth', 800);
+var Volume := App.Settings.GetFloat('Volume', 1.0);
+var DarkMode := App.Settings.GetBool('UI.DarkMode', False);
+
+// Or use generic getter
+var Name := App.Settings.GetValue<string>('AppName', 'Default');
+
+// Auto-save is enabled by default
+App.Settings.AutoSave := True;  // Saves on every change
+App.Settings.AutoSave := False; // Manual save only
+App.Settings.SaveToFile;
+
+// Check and remove keys
+if App.Settings.HasKey('OldSetting') then
+  App.Settings.RemoveKey('OldSetting');
+
+// Get all keys
+var AllKeys := App.Settings.Keys;
+
+// Handle changes
+App.Settings.OnChange := procedure(Sender: TObject)
+begin
+  ApplySettings;
+end;
+```
+
+**JSON Output Example:**
+```json
+{
+  "AppName": "My App",
+  "WindowWidth": 1024,
+  "Volume": 0.75,
+  "UI": {
+    "DarkMode": true,
+    "Theme": "dark"
+  },
+  "User": {
+    "Preferences": {
+      "Font": "Arial"
+    }
+  }
+}
+```
+
+## Supported Platforms
+
+| Platform | Frame Type | Notes |
+|----------|-----------|-------|
+| FireMonkey (Windows/macOS/iOS/Android) | `TFrame` | Full support |
+| PAS2JS / TMS Web Core | `TWebFrame` | Web-specific adaptations |
+
+## File Structure
+
+```
+UniPas/
+├── Source Code/
+│   ├── UniPas.pas                    # Main framework (TUniPas)
+│   ├── UniPas.AppSettings.pas        # Settings module
+│   ├── UniPas.LanguageSupport.pas    # Translation engine
+│   ├── UniPas.Routing.pas            # Internal routing types
+│   ├── UniPas.Routing.Pages.pas      # Page registry
+│   ├── UniPas.Routing.Variables.pas  # Shared state
+│   ├── Default_Pages/                # Built-in pages
+│   │   └── UniPas.uPage_404PageNotFound.pas
+│   └── Language_Translations/        # Translation files
+│       ├── UniPas.LanguageSupport.EN.pas
+│       └── UniPas.LanguageSupport.AF.pas
+└── Demo/                             # Example application
+```
+
+## License
+
+See [LICENSE](LICENSE) file.

@@ -138,33 +138,34 @@
             <Form>FrmMain</Form>
             <FormType>fmx</FormType>
         </DCCReference>
-        <DCCReference Include="Data\uConfig.pas"/>
         <DCCReference Include="Pages\uPage_Home.pas">
             <Form>Page_Home</Form>
             <FormType>fmx</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Lib\UniPas\UniPas.Routing.pas"/>
         <DCCReference Include="Pages\uPage_About.pas">
             <Form>Page_About</Form>
             <FormType>fmx</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Lib\UniPas\UniPas.Routing.Pages.pas"/>
         <DCCReference Include="Pages\uPage_Instructions.pas">
             <Form>Page_Instructions</Form>
             <FormType>fmx</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Lib\UniPas\UniPas.Routing.Variables.pas"/>
         <DCCReference Include="Lib\UniPas\Default_Pages\UniPas.uPage_404PageNotFound.pas">
             <Form>Page_404PageNotFound</Form>
             <FormType>fmx</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="..\UniPas Routing Library\UniPas.LanguageSupport.pas"/>
-        <DCCReference Include="..\UniPas Routing Library\Language_Translations\UniPas.LanguageSupport.AF.pas"/>
-        <DCCReference Include="..\UniPas Routing Library\Language_Translations\UniPas.LanguageSupport.EN.pas"/>
+        <DCCReference Include="Lib\UniPas\UniPas.AppSettings.pas"/>
+        <DCCReference Include="Lib\UniPas\UniPas.LanguageSupport.pas"/>
+        <DCCReference Include="Lib\UniPas\UniPas.pas"/>
+        <DCCReference Include="Lib\UniPas\UniPas.Routing.Pages.pas"/>
+        <DCCReference Include="Lib\UniPas\UniPas.Routing.pas"/>
+        <DCCReference Include="Lib\UniPas\UniPas.Routing.Variables.pas"/>
+        <DCCReference Include="Lib\UniPas\Language_Translations\UniPas.LanguageSupport.AF.pas"/>
+        <DCCReference Include="Lib\UniPas\Language_Translations\UniPas.LanguageSupport.EN.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

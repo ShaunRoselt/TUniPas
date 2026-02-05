@@ -25,16 +25,16 @@ implementation
 {$R *.fmx}
 
 uses
-  UniPas.Routing;
+  UniPas;
 
 procedure TPage_Home.btnAboutPageClick(Sender: TObject);
 begin
-  TUniPas.RenderPage('About');
+  TUniPas.Routing.RenderPage('About');
 end;
 
 procedure TPage_Home.btnInstructionsPageClick(Sender: TObject);
 begin
-  TUniPas.RenderPage('Instructions');
+  TUniPas.Routing.RenderPage('Instructions');
 end;
 
 end.

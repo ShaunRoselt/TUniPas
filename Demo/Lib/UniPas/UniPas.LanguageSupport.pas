@@ -276,12 +276,12 @@ end;
 
 class function TUniPasTranslations.GenerateEnglishTranslationFile(const AFileName: String; const AUnitName: String): Boolean;
 var
-    Lines: TStringList;
-    Entries: TStringList;
-    UnitName: String;
-    I: Integer;
-    J: Integer;
-    Root: TComponent;
+  Lines: TStringList;
+  Entries: TStringList;
+  UnitName: String;
+  I: Integer;
+  J: Integer;
+  Root: TComponent;
   PageName: String;
   PageClass: TComponentClass;
   PageFrame: TFrame;

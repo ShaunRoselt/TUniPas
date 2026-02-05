@@ -20,36 +20,23 @@ UniPas is a modular Delphi framework for building applications with a unified co
 uses
   UniPas;
 
-var
-  App: TUniPas;
-
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
-  // Create the framework instance
-  App := TUniPas.Create;
-  App.AppName := 'My Application';
-  
-  // Attach modules as needed
-  App.UseRouting;
-  App.UseLanguageSupport;
-  App.UseAppSettings;
-  
-  // Configure routing
-  App.Routing.SetDefaultContainerControl(MainContainer);
-  App.Routing.RenderPage('Home');
-  
-  // Configure language
-  App.Lang.SetLanguage('en');
-  
-  // Use app settings
-  App.Settings.LoadFromFile;
-  App.Settings.SetValue('UI.Theme', 'dark');
-  App.Settings.SetValue('User.LastLogin', Now);
-end;
+  // UniPas is a singleton-style framework.
+  // No Create/Free needed — modules are created on first access.
+  TUniPas.AppName := 'My Application';
+  TUniPas.AppVersion := '0.1.0';
 
-procedure TMainForm.FormDestroy(Sender: TObject);
-begin
-  App.Free;
+  // Configure routing
+  TUniPas.Routing.SetDefaultContainerControl(MainContainer);
+  TUniPas.Routing.RenderPage('Home');
+
+  // Configure language
+  TUniPas.Lang.SetLanguage('en');
+
+  // Use app settings
+  TUniPas.Settings.LoadFromFile;
+  TUniPas.Settings.SetValue('UI.Theme', 'dark');
 end;
 ```
 
@@ -60,24 +47,27 @@ end;
 Manages page navigation using Delphi frames.
 
 ```pascal
-// Attach the routing module
-App.UseRouting;
-
 // Set the container control (usually a TLayout)
-App.Routing.SetDefaultContainerControl(MainContainer);
+TUniPas.Routing.SetDefaultContainerControl(MainContainer);
 
 // Navigate to pages
-App.Routing.RenderPage('Home');
-App.Routing.RenderPage('About', 'some extra info');
+TUniPas.Routing.RenderPage('Home');
+TUniPas.Routing.RenderPage('About', 'some extra info');
 
 // Check current page
-if App.Routing.CurrentPageName = 'Home' then
+if TUniPas.Routing.CurrentPageName = 'Home' then
   // ...
 
 // Handle page changes
-App.Routing.OnPageChanged := procedure(Sender: TObject)
+TUniPas.Routing.OnPageChanged := procedure(Sender: TObject)
 begin
   UpdateStatusBar;
+end;
+
+// Optional: handle routing errors
+TUniPas.Routing.OnRoutingError := procedure(const Msg: string)
+begin
+  // log or show the error
 end;
 ```
 
@@ -91,21 +81,18 @@ end;
 Provides runtime translation of UI components.
 
 ```pascal
-// Attach the language support module
-App.UseLanguageSupport;
-
 // Set the current language
-App.Lang.SetLanguage('en');  // English
-App.Lang.SetLanguage('af');  // Afrikaans
+TUniPas.Lang.SetLanguage('en');  // English
+TUniPas.Lang.SetLanguage('af');  // Afrikaans
 
 // Handle language changes
-App.Lang.OnLanguageChanged := procedure(Sender: TObject)
+TUniPas.Lang.OnLanguageChanged := procedure(Sender: TObject)
 begin
   RefreshUI;
 end;
 
 // Generate translation template
-App.Lang.GenerateEnglishTranslationFile;
+TUniPas.Lang.GenerateEnglishTranslationFile;
 ```
 
 **Translation Setup:**
@@ -118,44 +105,39 @@ App.Lang.GenerateEnglishTranslationFile;
 JSON-based configuration with auto-save support.
 
 ```pascal
-// Attach the settings module (optional custom path)
-App.UseAppSettings;  // Default: appsettings.json
-// or
-App.UseAppSettings('/path/to/config.json');
-
 // Load existing settings
-App.Settings.LoadFromFile;
+TUniPas.Settings.LoadFromFile;
 
 // Set values (supports dotted paths for nesting)
-App.Settings.SetValue('AppName', 'My App');           // String
-App.Settings.SetValue('WindowWidth', 1024);           // Integer
-App.Settings.SetValue('Volume', 0.75);                // Double
-App.Settings.SetValue('UI.DarkMode', True);           // Boolean (nested)
-App.Settings.SetValue('User.Preferences.Font', 'Arial');  // Deep nesting
+TUniPas.Settings.SetValue('AppName', 'My App');           // String
+TUniPas.Settings.SetValue('WindowWidth', 1024);           // Integer
+TUniPas.Settings.SetValue('Volume', 0.75);                // Double
+TUniPas.Settings.SetValue('UI.DarkMode', True);           // Boolean (nested)
+TUniPas.Settings.SetValue('User.Preferences.Font', 'Arial');  // Deep nesting
 
 // Get values with defaults
-var Theme := App.Settings.GetString('UI.Theme', 'light');
-var Width := App.Settings.GetInt('WindowWidth', 800);
-var Volume := App.Settings.GetFloat('Volume', 1.0);
-var DarkMode := App.Settings.GetBool('UI.DarkMode', False);
+var Theme := TUniPas.Settings.GetString('UI.Theme', 'light');
+var Width := TUniPas.Settings.GetInt('WindowWidth', 800);
+var Volume := TUniPas.Settings.GetFloat('Volume', 1.0);
+var DarkMode := TUniPas.Settings.GetBool('UI.DarkMode', False);
 
 // Or use generic getter
-var Name := App.Settings.GetValue<string>('AppName', 'Default');
+var Name := TUniPas.Settings.GetValue<string>('AppName', 'Default');
 
 // Auto-save is enabled by default
-App.Settings.AutoSave := True;  // Saves on every change
-App.Settings.AutoSave := False; // Manual save only
-App.Settings.SaveToFile;
+TUniPas.Settings.AutoSave := True;  // Saves on every change
+TUniPas.Settings.AutoSave := False; // Manual save only
+TUniPas.Settings.SaveToFile;
 
 // Check and remove keys
-if App.Settings.HasKey('OldSetting') then
-  App.Settings.RemoveKey('OldSetting');
+if TUniPas.Settings.HasKey('OldSetting') then
+  TUniPas.Settings.RemoveKey('OldSetting');
 
 // Get all keys
-var AllKeys := App.Settings.Keys;
+var AllKeys := TUniPas.Settings.Keys;
 
 // Handle changes
-App.Settings.OnChange := procedure(Sender: TObject)
+TUniPas.Settings.OnChange := procedure(Sender: TObject)
 begin
   ApplySettings;
 end;

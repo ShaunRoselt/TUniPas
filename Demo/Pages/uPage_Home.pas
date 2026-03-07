@@ -5,13 +5,15 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, 
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
-  FMX.Controls.Presentation;
+  FMX.Controls.Presentation, FMX.Edit;
 
 type
   TPage_Home = class(TFrame)
     btnAboutPage: TButton;
     Label1: TLabel;
     btnInstructionsPage: TButton;
+    Edit1: TEdit;
+    ClearEditButton1: TClearEditButton;
     procedure btnAboutPageClick(Sender: TObject);
     procedure btnInstructionsPageClick(Sender: TObject);
   private

@@ -37,4 +37,22 @@ object Page_Home: TPage_Home
     Text = 'Go to Instructions Page'
     OnClick = btnInstructionsPageClick
   end
+  object Edit1: TEdit
+    Touch.InteractiveGestures = [LongTap, DoubleTap]
+    TabOrder = 3
+    Position.X = 383.00000000000000000
+    Position.Y = 88.00000000000000000
+    Size.Width = 145.00000000000000000
+    Size.Height = 22.00000000000000000
+    Size.PlatformDefault = False
+    object ClearEditButton1: TClearEditButton
+      Touch.InteractiveGestures = [LongTap]
+      CanFocus = False
+      Cursor = crArrow
+      Size.Width = 28.00000000000000000
+      Size.Height = 18.00000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+    end
+  end
 end

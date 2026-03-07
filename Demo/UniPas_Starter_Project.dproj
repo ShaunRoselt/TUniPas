@@ -158,14 +158,14 @@
             <FormType>fmx</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Lib\UniPas\UniPas.AppSettings.pas"/>
-        <DCCReference Include="Lib\UniPas\UniPas.LanguageSupport.pas"/>
-        <DCCReference Include="Lib\UniPas\UniPas.pas"/>
-        <DCCReference Include="Lib\UniPas\UniPas.Routing.Pages.pas"/>
-        <DCCReference Include="Lib\UniPas\UniPas.Routing.pas"/>
-        <DCCReference Include="Lib\UniPas\UniPas.Routing.Variables.pas"/>
         <DCCReference Include="Lib\UniPas\Language_Translations\UniPas.LanguageSupport.AF.pas"/>
         <DCCReference Include="Lib\UniPas\Language_Translations\UniPas.LanguageSupport.EN.pas"/>
+        <DCCReference Include="..\Source Code\UniPas.AppSettings.pas"/>
+        <DCCReference Include="..\Source Code\UniPas.LanguageSupport.pas"/>
+        <DCCReference Include="..\Source Code\UniPas.pas"/>
+        <DCCReference Include="..\Source Code\UniPas.Routing.Pages.pas"/>
+        <DCCReference Include="..\Source Code\UniPas.Routing.pas"/>
+        <DCCReference Include="..\Source Code\UniPas.Routing.Variables.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

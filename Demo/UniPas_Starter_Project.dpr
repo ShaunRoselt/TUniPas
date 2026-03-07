@@ -13,9 +13,9 @@ uses
   UniPas.AppSettings in '..\Source Code\UniPas.AppSettings.pas',
   UniPas.LanguageSupport in '..\Source Code\UniPas.LanguageSupport.pas',
   UniPas in '..\Source Code\UniPas.pas',
-  UniPas.Routing.Pages in '..\Source Code\UniPas.Routing.Pages.pas',
   UniPas.Routing in '..\Source Code\UniPas.Routing.pas',
-  UniPas.Routing.Variables in '..\Source Code\UniPas.Routing.Variables.pas';
+  UniPas.Routing.Variables in '..\Source Code\UniPas.Routing.Variables.pas',
+  UniPas.Routing.Pages in 'Lib\UniPas\UniPas.Routing.Pages.pas';
 
 {$R *.res}
 

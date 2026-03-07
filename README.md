@@ -79,6 +79,10 @@ TUniPas.Routing.OnRoutingError := procedure(const Msg: string)
 begin
   // log or show the error
 end;
+
+// Optional: control frame cleanup
+TUniPas.Routing.FreeFramesOnNavigate := False; // keep frames alive and simply hide/show them
+// when False the demo exposes Switch1 to flip this at runtime
 ```
 
 **Page Setup:**
@@ -103,6 +107,9 @@ end;
 
 // Generate translation template
 TUniPas.Lang.GenerateEnglishTranslationFile;
+
+// Optional: persist language selection in settings
+TUniPas.Settings.SetValue('App.Language', 'en');
 ```
 
 **Translation Setup:**

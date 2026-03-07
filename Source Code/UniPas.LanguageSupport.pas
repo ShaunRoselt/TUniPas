@@ -34,9 +34,12 @@ type
   TUniPasTranslations = class
   private
     class var FCatalog: TUniPasTranslationCatalog;
+    class var FSourceTexts: TStringList;
     class function Catalog: TUniPasTranslationCatalog; static;
+    class function SourceTexts: TStringList; static;
     class function GetRootKey(ARoot: TComponent): string; static;
     class function IsStringProp(const PropInfo: PPropInfo): Boolean; static;
+    class procedure RememberSourceValue(const AKey, AValue: string); static;
     class procedure ApplyTranslationsToComponent(ARoot, AComponent: TComponent); static;
     class procedure CollectTranslationsFromComponent(ARoot, AComponent: TComponent; AList: TStrings); static;
     class function EscapePascalString(const S: string): string; static;
@@ -114,6 +117,20 @@ begin
   Result := FCatalog;
 end;
 
+class function TUniPasTranslations.SourceTexts: TStringList;
+begin
+  if not Assigned(FSourceTexts) then
+  begin
+    FSourceTexts := TStringList.Create;
+    FSourceTexts.NameValueSeparator := '=';
+    FSourceTexts.CaseSensitive := True;
+    FSourceTexts.Sorted := False;
+    FSourceTexts.Duplicates := dupIgnore;
+  end;
+
+  Result := FSourceTexts;
+end;
+
 class procedure TUniPasTranslations.RegisterTranslations(const ARegisterProc: TUniPasTranslationRegisterProc);
 begin
   if Assigned(ARegisterProc) then
@@ -145,6 +162,15 @@ begin
   Result := Assigned(PropInfo) and (PropInfo.PropType^.Kind in [tkString, tkLString, tkWString, tkUString]);
 end;
 
+class procedure TUniPasTranslations.RememberSourceValue(const AKey, AValue: string);
+begin
+  if (AKey = '') or (AValue = '') then
+    Exit;
+
+  if SourceTexts.IndexOfName(AKey) < 0 then
+    SourceTexts.Values[AKey] := AValue;
+end;
+
 class procedure TUniPasTranslations.ApplyTranslationsToComponent(ARoot, AComponent: TComponent);
 begin
   if (AComponent = nil) or (ARoot = nil) or (AComponent.Name = '') then
@@ -161,6 +187,8 @@ begin
         Key := RootKey + '.' + PropName
       else
         Key := RootKey + '.' + AComponent.Name + '.' + PropName;
+
+      RememberSourceValue(Key, GetStrProp(AComponent, PropInfo));
 
       var Value := Catalog.GetValue(Catalog.CurrentLanguage, Key, '');
       if Value <> '' then
@@ -189,7 +217,8 @@ begin
         else
           Key := RootKey + '.' + AComponent.Name + '.' + PropName;
 
-        AList.Values[Key] := Value;
+        RememberSourceValue(Key, Value);
+        AList.Values[Key] := SourceTexts.Values[Key];
       end;
     end;
   end;
@@ -355,5 +384,7 @@ initialization
 finalization
   TUniPasTranslations.FCatalog.Free;
   TUniPasTranslations.FCatalog := nil;
+  TUniPasTranslations.FSourceTexts.Free;
+  TUniPasTranslations.FSourceTexts := nil;
 
 end.

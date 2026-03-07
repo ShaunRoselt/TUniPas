@@ -67,14 +67,20 @@ type
     FPreviousPageName: string;
     FCurrentPageInfo: string;
     FActiveFrame: TObject;
+    FFreeFramesOnNavigate: Boolean;
     FPendingFreeFrames: TList;
+    FTrackedFrames: TList;
     FOnPageChanged: TNotifyEvent;
     FOnRoutingError: TGetStrProc;
     procedure DoPageChanged;
     procedure ReportError(const AMsg: string);
     function FormatPageName(const APageName: string): string;
+    function FindTrackedFrame(AContainerControl: TObject; AFrameClass: TComponentClass): TObject;
     procedure FreeActiveFrame;
     procedure FlushPendingFreeFrames;
+    procedure TrackFrame(AFrame: TObject);
+    procedure UntrackFrame(AFrame: TObject);
+    procedure UpdateTrackedFrameVisibility(AContainerControl: TObject; AVisibleFrame: TObject);
   public
     constructor Create;
     destructor Destroy; override;
@@ -89,6 +95,7 @@ type
     property CurrentPageInfo: string read FCurrentPageInfo;
     property ActiveFrame: TObject read FActiveFrame;
     property DefaultContainerControl: TObject read FDefaultContainerControl;
+    property FreeFramesOnNavigate: Boolean read FFreeFramesOnNavigate write FFreeFramesOnNavigate;
 
     property OnPageChanged: TNotifyEvent read FOnPageChanged write FOnPageChanged;
     property OnRoutingError: TGetStrProc read FOnRoutingError write FOnRoutingError;
@@ -210,7 +217,9 @@ constructor TUniPasRouting.Create;
 begin
   inherited Create;
   FActiveFrame := nil;
+  FFreeFramesOnNavigate := True;
   FPendingFreeFrames := TList.Create;
+  FTrackedFrames := TList.Create;
   FDefaultContainerControl := nil;
   FCurrentPageName := '';
   FPreviousPageName := '';
@@ -220,8 +229,9 @@ end;
 destructor TUniPasRouting.Destroy;
 begin
   // Don't free pending frames here - they were created with Application as owner,
-  // so Application already freed them during shutdown. Just free the list.
+  // so Application already freed them during shutdown. Just free the lists.
   FPendingFreeFrames.Free;
+  FTrackedFrames.Free;
   FActiveFrame := nil;
   inherited;
 end;
@@ -250,17 +260,25 @@ begin
   if not Assigned(FActiveFrame) then
     Exit;
 
-  // Add the frame to the pending free list instead of freeing immediately.
-  // This prevents access violations when the user rapidly switches pages
-  // while a button click handler is still on the call stack.
   try
     TLibFrame(FActiveFrame).Visible := False;
-    TLibFrame(FActiveFrame).Parent := nil;
-    TLibFrame(FActiveFrame).Name := '';  // Clear name so new frames can reuse it
   except
   end;
 
-  FPendingFreeFrames.Add(FActiveFrame);
+  if FFreeFramesOnNavigate then
+  begin
+    // Add the frame to the pending free list instead of freeing immediately.
+    // This prevents access violations when the user rapidly switches pages
+    // while a button click handler is still on the call stack.
+    try
+      TLibFrame(FActiveFrame).Parent := nil;
+      TLibFrame(FActiveFrame).Name := '';  // Clear name so new frames can reuse it
+    except
+    end;
+
+    FPendingFreeFrames.Add(FActiveFrame);
+  end;
+
   FActiveFrame := nil;
 end;
 
@@ -272,11 +290,45 @@ begin
   begin
     var Frame := TObject(FPendingFreeFrames[I]);
     FPendingFreeFrames.Delete(I);
+    UntrackFrame(Frame);
     try
       Frame.Free;
     except
       // Ignore errors during cleanup
     end;
+  end;
+end;
+
+procedure TUniPasRouting.TrackFrame(AFrame: TObject);
+begin
+  if (AFrame <> nil) and (FTrackedFrames.IndexOf(AFrame) < 0) then
+    FTrackedFrames.Add(AFrame);
+end;
+
+procedure TUniPasRouting.UntrackFrame(AFrame: TObject);
+var
+  FrameIndex: Integer;
+begin
+  FrameIndex := FTrackedFrames.IndexOf(AFrame);
+  if FrameIndex >= 0 then
+    FTrackedFrames.Delete(FrameIndex);
+end;
+
+procedure TUniPasRouting.UpdateTrackedFrameVisibility(AContainerControl: TObject; AVisibleFrame: TObject);
+begin
+  if AContainerControl = nil then
+    Exit;
+
+  for var I := 0 to FTrackedFrames.Count - 1 do
+  begin
+    var Candidate := TObject(FTrackedFrames[I]);
+    if (Candidate <> nil) and (TLibFrame(Candidate).Parent = TLibContainerControl(AContainerControl)) then
+      try
+        TLibFrame(Candidate).Visible := Candidate = AVisibleFrame;
+      except
+        on E: Exception do
+          ReportError('SetVisible: ' + E.ClassName + ': ' + E.Message);
+      end;
   end;
 end;
 
@@ -292,6 +344,23 @@ begin
 
   if not MatchText(Result, PagesArray) then
     Result := '404PageNotFound';
+end;
+
+function TUniPasRouting.FindTrackedFrame(AContainerControl: TObject; AFrameClass: TComponentClass): TObject;
+begin
+  Result := nil;
+
+  if (AContainerControl = nil) or (AFrameClass = nil) then
+    Exit;
+
+  for var I := 0 to FTrackedFrames.Count - 1 do
+  begin
+    var Candidate := TObject(FTrackedFrames[I]);
+    if (Candidate <> nil)
+      and (Candidate.ClassType = AFrameClass)
+      and (TLibFrame(Candidate).Parent = TLibContainerControl(AContainerControl)) then
+      Exit(Candidate);
+  end;
 end;
 
 procedure TUniPasRouting.RenderPage(const APageName: string; const APageInfo: string; const APageTitle: string);
@@ -335,66 +404,60 @@ begin
   UniPas.Routing.Variables.UniPasPageName := FCurrentPageName;
   UniPas.Routing.Variables.UniPasPageInfo := FCurrentPageInfo;
 
-  // Free current active frame
+  var FormattedPageName := FormatPageName(AOptions.PageName);
+  var CompClass := TComponentClass(GetClass('TPage_' + FormattedPageName));
+
+  if not Assigned(CompClass) then
+  begin
+    if not SameText(FormattedPageName, '404PageNotFound') then
+    begin
+      RenderPage(TObject(ContainerControl), '404PageNotFound', AOptions.PageInfo, AOptions.PageTitle);
+      Exit;
+    end;
+
+    raise Exception.Create('TUniPas.Routing.RenderPage: No frame class is registered for page "' + FormattedPageName + '".');
+  end;
+
+  // Hide or queue the current frame before activating the next one.
   FreeActiveFrame;
 
-  var FormattedPageName := FormatPageName(AOptions.PageName);
+  var TargetFrame := FindTrackedFrame(TObject(ContainerControl), CompClass);
 
-  // Create the new frame
-  var CompClass := TComponentClass(GetClass('TPage_' + FormattedPageName));
-  if Assigned(CompClass) then
+  // Create the new frame only when it is not already being kept alive.
+  if not Assigned(TargetFrame) then
   begin
     try
-      FActiveFrame := TLibFrame(CompClass.Create(Application));
+      TargetFrame := TLibFrame(CompClass.Create(Application));
       try
-        TLibFrame(FActiveFrame).Name := 'lay' + FormattedPageName;
-        TLibFrame(FActiveFrame).Visible := False;
-        TLibFrame(FActiveFrame).Parent := ContainerControl;
-        TLibFrame(FActiveFrame).Align := TAlignLayout.Client;
+        TLibFrame(TargetFrame).Name := 'lay' + FormattedPageName;
+        TLibFrame(TargetFrame).Visible := False;
+        TLibFrame(TargetFrame).Parent := ContainerControl;
+        TLibFrame(TargetFrame).Align := TAlignLayout.Client;
+        TrackFrame(TargetFrame);
       except
         on E: Exception do
         begin
           ReportError('CreateAppFrame: ' + E.ClassName + ': ' + E.Message);
-          FreeAndNil(FActiveFrame);
+          FreeAndNil(TargetFrame);
         end;
       end;
     except
       on E: Exception do
       begin
         ReportError('CreateFrame: ' + E.ClassName + ': ' + E.Message);
-        FActiveFrame := nil;
+        TargetFrame := nil;
       end;
     end;
   end;
 
-  // Set visibility
-  var PageFound := False;
-  var ControlsCount := ContainerControl.ControlsCount;
-
-  for var I := 0 to ControlsCount - 1 do
-  begin
-    try
-      var FrameVisible := TControl(ContainerControl.Controls[I]).ClassName = ('TPage_' + FormattedPageName);
-      try
-        TControl(ContainerControl.Controls[I]).Visible := FrameVisible;
-      except
-        on E: Exception do
-          ReportError('SetVisible: ' + E.ClassName + ': ' + E.Message);
-      end;
-
-      if FrameVisible and not PageFound then
-        PageFound := True;
-    except
-      on E: Exception do
-        ReportError('IterateControls: ' + E.ClassName + ': ' + E.Message);
-    end;
-  end;
-
-  if not PageFound then
+  if not Assigned(TargetFrame) then
   begin
     RenderPage(TObject(ContainerControl), '404PageNotFound', AOptions.PageInfo, AOptions.PageTitle);
     Exit;
   end;
+
+  FActiveFrame := TargetFrame;
+  UpdateTrackedFrameVisibility(TObject(ContainerControl), FActiveFrame);
 
   // Apply translations if language support has been used
   if Assigned(TUniPas.FLanguageSupport) and Assigned(FActiveFrame) then

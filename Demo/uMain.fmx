@@ -97,5 +97,19 @@ object FrmMain: TFrmMain
       Text = 'English'
       OnClick = RadioButton2Click
     end
+    object Switch1: TSwitch
+      IsChecked = False
+      Position.X = 32.00000000000000000
+      Position.Y = 472.00000000000000000
+      TabOrder = 8
+      OnClick = Switch1Click
+      OnDblClick = Switch1Click
+    end
+    object Label1: TLabel
+      Position.X = 32.00000000000000000
+      Position.Y = 455.00000000000000000
+      Text = 'Free Frames'
+      TabOrder = 9
+    end
   end
 end

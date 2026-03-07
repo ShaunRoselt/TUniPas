@@ -21,6 +21,8 @@ type
     Button6: TButton;
     RadioButton1: TRadioButton;
     RadioButton2: TRadioButton;
+    Switch1: TSwitch;
+    Label1: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -30,8 +32,10 @@ type
     procedure Button6Click(Sender: TObject);
     procedure RadioButton1Click(Sender: TObject);
     procedure RadioButton2Click(Sender: TObject);
+    procedure Switch1Click(Sender: TObject);
   private
-    { Private declarations }
+    procedure ApplyLanguageChoice(const ALanguage: string);
+    procedure SaveLanguageChoice(const ALanguage: string);
   public
     { Public declarations }
   end;
@@ -42,6 +46,19 @@ var
 implementation
 
 {$R *.fmx}
+
+procedure TFrmMain.ApplyLanguageChoice(const ALanguage: string);
+var
+  SelectedLanguage: string;
+begin
+  SelectedLanguage := ALanguage.Trim.ToLower;
+  if not SameText(SelectedLanguage, 'af') then
+    SelectedLanguage := 'en';
+
+  RadioButton1.IsChecked := SameText(SelectedLanguage, 'af');
+  RadioButton2.IsChecked := SameText(SelectedLanguage, 'en');
+  TUniPas.Lang.SetLanguage(SelectedLanguage);
+end;
 
 procedure TFrmMain.Button1Click(Sender: TObject);
 begin
@@ -81,12 +98,15 @@ begin
 
   // Configure routing
   TUniPas.Routing.SetDefaultContainerControl(UniPasContainer);
-
-  // Configure language
-  TUniPas.Lang.SetLanguage('en');
+  Switch1.IsChecked := TUniPas.Routing.FreeFramesOnNavigate;
+  Switch1Click(Switch1);
 
   // Load settings (creates file if doesn't exist)
   TUniPas.Settings.LoadFromFile;
+
+  // Configure language from persisted settings
+  ApplyLanguageChoice(TUniPas.Settings.GetString('App.Language', 'en'));
+  TUniPas.Settings.SetValue('App.Language', TUniPas.Lang.CurrentLanguage);
 
   // Navigate to home page
   TUniPas.Routing.RenderPage('Home');
@@ -100,13 +120,29 @@ end;
 procedure TFrmMain.RadioButton1Click(Sender: TObject);
 begin
   // Switch Language to Afrikaans
-  TUniPas.Lang.SetLanguage('af');
+  SaveLanguageChoice('af');
 end;
 
 procedure TFrmMain.RadioButton2Click(Sender: TObject);
 begin
   // Switch Language to English
-  TUniPas.Lang.SetLanguage('en');
+  SaveLanguageChoice('en');
+end;
+
+procedure TFrmMain.SaveLanguageChoice(const ALanguage: string);
+begin
+  ApplyLanguageChoice(ALanguage);
+  TUniPas.Settings.SetValue('App.Language', TUniPas.Lang.CurrentLanguage);
+end;
+
+procedure TFrmMain.Switch1Click(Sender: TObject);
+begin
+  TUniPas.Routing.FreeFramesOnNavigate := TSwitch(Sender).IsChecked;
+
+  if TUniPas.Routing.FreeFramesOnNavigate then
+    Label1.Text := 'Free Frames'
+  else
+    Label1.Text := 'Don''t Free Frames';
 end;
 
 end.

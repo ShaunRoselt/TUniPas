@@ -23,6 +23,7 @@ begin
   ACatalog.SetValue('en', 'FrmMain.Button6.Text', 'Instructions');
   ACatalog.SetValue('en', 'FrmMain.RadioButton1.Text', 'Afrikaans');
   ACatalog.SetValue('en', 'FrmMain.RadioButton2.Text', 'English');
+  ACatalog.SetValue('en', 'FrmMain.Label1.Text', 'Free Frames');
   ACatalog.SetValue('en', 'Page_404PageNotFound.Label1.Text', 'Page Not Found');
   ACatalog.SetValue('en', 'Page_Home.btnAboutPage.Text', 'Go to About Page');
   ACatalog.SetValue('en', 'Page_Home.Label1.Text', 'HOME');

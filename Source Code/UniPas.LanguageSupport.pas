@@ -236,7 +236,50 @@ end;
 
 class function TUniPasTranslations.EscapePascalString(const S: string): string;
 begin
-  Result := StringReplace(S, '''', '''''', [rfReplaceAll]);
+  Result := '';
+
+  var CurrentSegment := '';
+  var I := 1;
+
+  while I <= Length(S) do
+  begin
+    case S[I] of
+      #13, #10:
+        begin
+          if CurrentSegment <> '' then
+          begin
+            if Result <> '' then
+              Result := Result + ' + ';
+
+            Result := Result + QuotedStr(CurrentSegment);
+            CurrentSegment := '';
+          end;
+
+          if Result <> '' then
+            Result := Result + ' + ';
+
+          Result := Result + 'sLineBreak';
+
+          if (S[I] = #13) and (I < Length(S)) and (S[I + 1] = #10) then
+            Inc(I);
+        end;
+    else
+      CurrentSegment := CurrentSegment + S[I];
+    end;
+
+    Inc(I);
+  end;
+
+  if CurrentSegment <> '' then
+  begin
+    if Result <> '' then
+      Result := Result + ' + ';
+
+    Result := Result + QuotedStr(CurrentSegment);
+  end;
+
+  if Result = '' then
+    Result := QuotedStr('');
 end;
 
 class procedure TUniPasTranslations.SetLanguage(const ALang: string);
@@ -377,7 +420,7 @@ begin
         CurrentSection := SectionName;
       end;
 
-      Lines.Add(Format('  ACatalog.SetValue(''en'', ''%s'', ''%s'');',
+      Lines.Add(Format('  ACatalog.SetValue(''en'', ''%s'', %s);',
         [Entries.Names[I], EscapePascalString(Entries.ValueFromIndex[I])]
       ));
     end;

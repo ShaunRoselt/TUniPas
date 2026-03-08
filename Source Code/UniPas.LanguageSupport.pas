@@ -57,7 +57,7 @@ uses
   UniPas.Routing.Pages;
 
 const
-  TranslatableProperties: array[0..2] of string = ('Text', 'Caption', 'Hint');
+  TranslatableProperties: array[0..2] of string = ('Text', 'Caption', 'Hint', 'TextPrompt');
 
 { TUniPasTranslationCatalog }
 

@@ -38,6 +38,7 @@ type
     class function Catalog: TUniPasTranslationCatalog; static;
     class function SourceTexts: TStringList; static;
     class function GetRootKey(ARoot: TComponent): string; static;
+    class function GetTranslationSectionName(const AKey: string): string; static;
     class function IsStringProp(const PropInfo: PPropInfo): Boolean; static;
     class procedure RememberSourceValue(const AKey, AValue: string); static;
     class procedure ApplyTranslationsToComponent(ARoot, AComponent: TComponent); static;
@@ -155,6 +156,15 @@ begin
     Result := ARoot.Name
   else
     Result := ARoot.ClassName;
+end;
+
+class function TUniPasTranslations.GetTranslationSectionName(const AKey: string): string;
+begin
+  Result := AKey;
+
+  var DotPos := Pos('.', Result);
+  if DotPos > 0 then
+    Result := Copy(Result, 1, DotPos - 1);
 end;
 
 class function TUniPasTranslations.IsStringProp(const PropInfo: PPropInfo): Boolean;
@@ -354,10 +364,23 @@ begin
     Lines.Add('procedure Register_Translations_EN(const ACatalog: TUniPasTranslationCatalog);');
     Lines.Add('begin');
 
+    var CurrentSection := '';
     for var I := 0 to Entries.Count - 1 do
+    begin
+      var SectionName := GetTranslationSectionName(Entries.Names[I]);
+      if not SameText(CurrentSection, SectionName) then
+      begin
+        if CurrentSection <> '' then
+          Lines.Add('');
+
+        Lines.Add(Format('  // Translations for Page/File: %s', [SectionName]));
+        CurrentSection := SectionName;
+      end;
+
       Lines.Add(Format('  ACatalog.SetValue(''en'', ''%s'', ''%s'');',
         [Entries.Names[I], EscapePascalString(Entries.ValueFromIndex[I])]
       ));
+    end;
 
     Lines.Add('end;');
     Lines.Add('');
